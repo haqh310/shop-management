@@ -1,0 +1,93 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Đơn Hàng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <div th:replace="~{fragments/sidebar :: menu(${activePage})}"></div>
+        <div class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto p-6 sm:px-6 lg:px-8">
+                <div class="mb-6">
+                    <h1 class="text-3xl font-bold text-gray-900">Báo Cáo Hiệu Suất Nhân Viên</h1>
+                    <p class="text-gray-600 mt-1">
+                        Theo dõi hiệu suất bán hàng hàng tháng
+                    </p>
+                </div>
+                <!-- Month Selector -->
+                <div class="flex items-center gap-4 flex-wrap">
+
+                    <div id="monthDisplay"
+                        class="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        <select name="monthText" id="monthText" onchange="filterByDate(this.value)"
+                            class="px-4 py-2 text-lg font-semibold text-gray-900 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option th:each="month : ${months}" th:value="${month}" th:text="${month}"
+                                th:selected="${month == monthText}"></option>
+                        </select>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 p-6">
+                <div class="w-full p-4">
+                    <div class="grid grid-cols-2">
+                        <div
+                            th:replace="~{fragments/ranking :: rank(title='Best Seller - Thang', kpi=18000, labels=${dataMonth.employee}, values=${dataMonth.balance})}">
+                        </div>
+                        <div
+                            th:replace="~{fragments/stack-chart :: stackChart(id='chart1', title='Bieu do - Accoun Theo Seller', isChartPercent=true, labels=${statusData.seller}, values=${statusData.chartDataset})}">
+                        </div>
+
+                    </div>
+
+                    <div class="grid grid-cols-2">
+                        <div
+                            th:replace="~{fragments/ranking :: rank(title='Best Seller - Week 1', kpi=4500, labels=${dataWeekOne.employee}, values=${dataWeekOne.balance})}">
+                        </div>
+                        <div
+                            th:replace="~{fragments/ranking :: rank(title='Best Seller - Week 2', kpi=4500, labels=${dataWeekTwo.employee}, values=${dataWeekTwo.balance})}">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2">
+                        <div
+                            th:replace="~{fragments/ranking :: rank(title='Best Seller - Week 3', kpi=4500, labels=${dataWeekThree.employee}, values=${dataWeekThree.balance})}">
+                        </div>
+                        <div
+                            th:replace="~{fragments/ranking :: rank(title='Best Seller - Week 4', kpi=4500, labels=${dataWeekFour.employee}, values=${dataWeekFour.balance})}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function filterByDate(selectedStatus) {
+        // Lấy đường dẫn hiện tại của trang (ví dụ: /hieu-suat)
+        const currentUrl = window.location.pathname;
+
+        // Nếu chọn trạng thái cụ thể, chuyển hướng sang: /hieu-suat?monthText=2026-07
+        if (selectedStatus) {
+            window.location.href = currentUrl + '?monthText=' + selectedStatus;
+        } else {
+            // Nếu chọn "Tất cả", quay về trang gốc không có bộ lọc
+            window.location.href = currentUrl;
+        }
+    }
+</script>
+<script th:src="@{/js/sidebar.js}"></script>
+
+</html>

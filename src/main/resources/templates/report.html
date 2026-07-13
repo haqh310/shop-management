@@ -1,0 +1,172 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản Lý Đơn Hàng</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-neutral-light">
+  <div class="min-h-screen">
+    <div th:replace="~{fragments/sidebar :: menu(${activePage})}"></div>
+    <div class="bg-white border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="mb-6">
+          <h1 class="text-3xl font-bold text-gray-900">Báo Cáo Doanh Thu</h1>
+          <p class="text-gray-600 mt-1">
+            Theo dõi doanh thu và đơn hàng bán hàng hàng tháng
+          </p>
+        </div>
+
+        <!-- Month Selector -->
+        <div class="flex items-center gap-4 flex-wrap">
+
+          <div id="monthDisplay" class="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <select name="monthText" id="monthText" onchange="filterByDate(this.value)"
+              class="px-4 py-2 text-lg font-semibold text-gray-900 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+              <option th:each="month : ${months}" th:value="${month}" th:text="${month}"
+                th:selected="${month == monthText}"></option>
+            </select>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Metrics Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total orders In Today -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-medium">Đơn hàng hôm nay</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2" id="totalRevenue" th:text="${dataToday.orderCount}">0</p>
+            </div>
+            <div class="bg-amber-100 p-3 rounded-lg">
+              <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Revenue In Today -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-medium">Doanh thu hôm nay</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2" id="totalOrders"
+                th:text="${#numbers.formatDecimal(dataToday.balance, 1, 'COMMA', 2, 'POINT')}">0.0</p>
+            </div>
+            <div class="bg-blue-100 p-3 rounded-lg">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                </path>
+              </svg>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Total orders In Month -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-medium">Tổng đơn trong tháng</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2" id="totalRevenue" th:text="${dataMonth.orderCount}">0</p>
+            </div>
+            <div class="bg-amber-100 p-3 rounded-lg">
+              <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Revenue In Month -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-medium">Tổng doanh thu trong tháng</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2" id="totalOrders"
+                th:text="${#numbers.formatDecimal(dataMonth.balance, 1, 'COMMA', 2, 'POINT')}">
+                0.0</p>
+            </div>
+            <div class="bg-blue-100 p-3 rounded-lg">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                </path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full p-4">
+        <div
+          th:replace="~{fragments/chart :: barChart(id='chart1', title='Tong-Doanh Thu Theo Ngay', type='line', chartTitle='Balance', unit='$', labels=${dataDaily.orderDate}, values=${dataDaily.balance})}">
+        </div>
+        <div
+          th:replace="~{fragments/chart :: barChart(id='chart2', title='Tong-Don Theo Ngay', type='line', chartTitle='Count', unit='đơn', labels=${dataDaily.orderDate}, values=${dataDaily.orderCount})}">
+        </div>
+        <div
+          th:replace="~{fragments/bar-chart :: barChart(id='chart3', title='Nhan Vien-Doanh Thu Theo Ngay', unit='$', labels=${dataDaily.orderDate}, values=${balanceDtasetsJson})}">
+        </div>
+        <div
+          th:replace="~{fragments/bar-chart :: barChart(id='chart4', title='Nhan Vien-Don Hang Theo Ngay', unit='đơn', labels=${dataDaily.orderDate}, values=${orderCountDatasetsJson})}">
+        </div>
+
+        <div class="grid grid-cols-2">
+          <div
+            th:replace="~{fragments/chart :: barChart(id='chart5', title='Doanh thu của nhan vien', type='bar', chartTitle='Balance', unit='$', labels=${sellerSumary?.employee}, values=${sellerSumary?.balance})}">
+          </div>
+          <div
+            th:replace="~{fragments/chart :: barChart(id='chart6', title='Tong don cua nhan vien', type='bar', chartTitle='Count', unit='đơn', labels=${sellerSumary?.employee}, values=${sellerSumary?.orderCount})}">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2">
+          <div
+            th:replace="~{fragments/chart :: barChart(id='chart7', title='Trang Thai Don Hang', type='bar', chartTitle='Count', unit='đơn', labels=${statusSumary?.status}, values=${statusSumary?.orderCount})}">
+          </div>
+          <div
+            th:replace="~{fragments/chart :: barChart(id='chart8', title='Doanh thu theo nen tang', type='bar', chartTitle='$', unit='$', labels=${platformSumary?.platform}, values=${platformSumary?.balance})}">
+          </div>
+        </div>
+
+        <div
+          th:replace="~{fragments/chart :: barChart(id='chart9', title='Doanh Thu Theo Account', type='bar', chartTitle=${accountSumary.employee}, unit='$', labels=${accountSumary?.account}, values=${accountSumary?.balance})}">
+        </div>
+
+      </div>
+    </div>
+</body>
+<script>
+  function filterByDate(selectedStatus) {
+    // Lấy đường dẫn hiện tại của trang (ví dụ: /bao-cao)
+    const currentUrl = window.location.pathname;
+
+    // Nếu chọn trạng thái cụ thể, chuyển hướng sang: /bao-cao?monthText=2026-07
+    if (selectedStatus) {
+      window.location.href = currentUrl + '?monthText=' + selectedStatus;
+    } else {
+      // Nếu chọn "Tất cả", quay về trang gốc không có bộ lọc
+      window.location.href = currentUrl;
+    }
+  }
+</script>
+<script th:src="@{/js/sidebar.js}"></script>
+
+</html>

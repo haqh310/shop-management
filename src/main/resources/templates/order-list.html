@@ -1,0 +1,364 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản Lý Đơn Hàng</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-light: #60a5fa;
+      --primary-dark: #1e40af;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --neutral-light: #f9fafb;
+      --neutral-medium: #e5e7eb;
+      --neutral-dark: #6b7280;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+    }
+
+    body {
+      background-color: var(--neutral-light);
+      color: var(--text-primary);
+    }
+
+    .badge-pending {
+      background-color: #fef3c7;
+      color: #b45309;
+    }
+
+    .badge-processing {
+      background-color: #bfdbfe;
+      color: #1e40af;
+    }
+
+    .badge-shipped {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-delivered {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-cancelled {
+      background-color: #fee2e2;
+      color: #7f1d1d;
+    }
+
+    .hover-row:hover {
+      background-color: #f3f4f6;
+    }
+
+    .shadow-soft {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+  <div class="min-h-screen">
+    <div th:replace="~{fragments/sidebar :: menu(${activePage})}"></div>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Top Statistics -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg p-6 shadow-soft">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-text-secondary text-sm font-medium">
+                Tổng Đơn Hàng
+              </p>
+              <p class="text-3xl font-bold text-text-primary mt-2">1,248</p>
+            </div>
+            <span class="text-2xl">📊</span>
+          </div>
+          <p class="text-xs text-green-600 mt-2">+12% so với tuần trước</p>
+        </div>
+        <div class="bg-white rounded-lg p-6 shadow-soft">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-text-secondary text-sm font-medium">Chờ Xử Lý</p>
+              <p class="text-3xl font-bold text-warning">142</p>
+            </div>
+            <span class="text-2xl">⏳</span>
+          </div>
+          <p class="text-xs text-text-secondary mt-2">Cần xử lý ngay</p>
+        </div>
+        <div class="bg-white rounded-lg p-6 shadow-soft">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-text-secondary text-sm font-medium">Đã Giao</p>
+              <p class="text-3xl font-bold text-success">856</p>
+            </div>
+            <span class="text-2xl">✅</span>
+          </div>
+          <p class="text-xs text-text-secondary mt-2">Giao hàng thành công</p>
+        </div>
+        <div class="bg-white rounded-lg p-6 shadow-soft">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-text-secondary text-sm font-medium">
+                Tổng Doanh Thu
+              </p>
+              <p class="text-3xl font-bold text-primary">$45.2K</p>
+            </div>
+            <span class="text-2xl">💰</span>
+          </div>
+          <p class="text-xs text-green-600 mt-2">+18% so với tháng trước</p>
+        </div>
+      </div>
+      <!-- Filters and Search -->
+      <div class="bg-white rounded-lg p-4 shadow-soft mb-6">
+        <form th:action="@{/order}" method="get"
+          class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+          <div class="flex-1 flex gap-2">
+            <div class="flex-1 w-full md:w-auto">
+              <input name="keyword" th:value="${keyword}" type="text"
+                placeholder="Tìm kiếm theo ID đơn hàng, tên sản phẩm..."
+                class="w-full px-4 py-2 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+              <select name="statusOrder"
+                class="px-4 py-2 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option th:each="status : ${T(sales.management.app.enums.StatusOrder).values()}" th:value="${status}"
+                  th:text="${status.label}" th:selected="${status.name == statusOrder}"></option>
+              </select>
+              <select name="monthText"
+                class="px-4 py-2 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                <option th:each="month : ${months}" th:value="${month}" th:text="${month}"
+                  th:selected="${month == monthText}"></option>
+              </select>
+              <button type="submit"
+                class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition">
+                🔍 Tìm kiếm
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- orderPage Table -->
+      <div class="bg-white rounded-lg shadow-soft overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50 border-b border-neutral-medium">
+              <tr>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  STT
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  Order Number
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  Ngày Order
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  Ngày Hết Hạn
+                </th>
+                <th:block sec:authorize="hasAnyRole('QUAN_LY','BAN_HANG')">
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                    Account
+                  </th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                    Seller
+                  </th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                    Link sản phẩm
+                  </th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                    Tên sản phẩm
+                  </th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                    Số Lượng
+                  </th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                    Banlance
+                  </th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                    Color
+                  </th>
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Địa chỉ
+                  </th>
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Note Seller
+                  </th>
+                </th:block>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                  Trạng thái đơn hàng
+                </th>
+                <th:block sec:authorize="hasAnyRole('QUAN_LY','KHO')">
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Tracking
+                  </th>
+
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Order Number Kho
+                  </th>
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Zip
+                  </th>
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Email
+                  </th>
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Password
+                  </th>
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Phone Number
+                  </th>
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Người đi đơn
+                  </th>
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Note Kho 3
+                  </th>
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                    Note kho 4
+                  </th>
+                </th:block>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-medium">
+              <tr th:each="order, iterStat : ${orderPage}" class="hover-row transition">
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${iterStat.index+1}"></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="font-semibold text-primary" th:text="${order.orderNumber}"></span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${order.orderDate}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${order.expiryDate}"></td>
+                <th:block sec:authorize="hasAnyRole('QUAN_LY','BAN_HANG')">
+                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.account.accountName}"></td>
+                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.account.employee.name}"></td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <a th:href="${order.productLink}" class="text-primary hover:underline" target="_blank">Xem sản
+                      phẩm</a>
+                  </td>
+                  <td>
+                    <div class="truncate max-w-[250px]" th:text="${order.productName}"></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.quantity}"></td>
+                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.balance}"></td>
+                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.color}"></td>
+                  <td>
+                    <div class="truncate max-w-[250px]" th:text="${order.orderAddress}"></div>
+                  </td>
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteSeller}"></td>
+                </th:block>
+                <td class="px-6 py-4 text-center whitespace-nowrap">
+                  <select th:data-id="${order.orderNumber}" class="px-3 py-1 rounded-full text-xs font-semibold"
+                    th:classappend="${order.status.cssClass}">
+                    <option th:each="status : ${T(sales.management.app.enums.StatusOrder).values()}"
+                      th:value="${status}" th:text="${status.label}" th:selected="${status == order.status}"
+                      th:data-class="${status.cssClass}" th:classappend="${status.cssClass}"
+                      class="px-3 py-1 rounded-full text-xs font-semibold"></option>
+                  </select>
+                </td>
+                <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteKho1}"></td>
+                <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteKho2}"></td>
+                <th:block sec:authorize="hasAnyRole('QUAN_LY','KHO')">
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.tracking}"></td>
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.orderNumberKho}"></td>
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.zip}"></td>
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.email}"></td>
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.password}"></td>
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.phoneNumber}"></td>
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.employee.name}"></td>
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteKho3}"></td>
+                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteKho4}"></td>
+                </th:block>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-neutral-medium flex justify-between items-center">
+          <p class="text-sm text-text-secondary"
+            th:text="'Hiển thị ' + ${orderPage.number * orderPage.size + 1} + '-' + ${orderPage.number * orderPage.size + orderPage.numberOfElements} + ' trong ' + ${orderPage.totalElements} + ' đơn hàng'">
+          </p>
+          <div th:if="${orderPage.totalPages > 0}" class="flex gap-2">
+            <a th:if="${orderPage.hasPrevious()}"
+              th:href="@{/order(keyword=${keyword}, statusOrder=${statusOrder}, monthText=${monthText}, page=${orderPage.number-1}, size=${orderPage.size})}"
+              class="px-4 py-2 transition text-sm text-slate-700 hover:text-blue-500">
+              &lt;&lt;
+            </a>
+            <div class="flex items-center gap-2">
+              <a th:if="${startPage > 0}"
+                th:href="@{/order(keyword=${keyword}, statusOrder=${statusOrder}, monthText=${monthText}, page=0, size=${orderPage.size})}"
+                class="px-2 py-2 text-blue-500">
+                1
+              </a>
+
+              <span th:if="${startPage > 1}"> ... </span>
+
+              <!-- Các trang gần current -->
+              <th:block th:each="i : ${#numbers.sequence(startPage,endPage)}">
+                <span th:if="${i == orderPage.number}" class="px-2 py-2">
+                  [[${i+1}]]
+                </span>
+
+                <a th:unless="${i == orderPage.number}"
+                  th:href="@{/order(keyword=${keyword}, statusOrder=${statusOrder}, monthText=${monthText},page=${i}, size=${orderPage.size})}"
+                  class="px-2 py-2 text-blue-500">
+                  [[${i+1}]]
+                </a>
+              </th:block>
+
+              <span th:if="${endPage < orderPage.totalPages-2}"> ... </span>
+
+              <!-- Trang cuối -->
+              <a th:if="${endPage < orderPage.totalPages-1}"
+                th:href="@{/order(keyword=${keyword}, statusOrder=${statusOrder}, monthText=${monthText}, page=${orderPage.totalPages-1}, size=${orderPage.size})}"
+                class="px-2 py-2 text-blue-500">
+                [[${orderPage.totalPages}]]
+              </a>
+            </div>
+            <a th:if="${orderPage.hasNext()}"
+              th:href="@{/order(keyword=${keyword}, statusOrder=${statusOrder}, monthText=${monthText}, page=${orderPage.number+1}, size=${orderPage.size})}"
+              class="px-4 py-2 transition text-sm text-slate-700 hover:text-blue-500">
+              &gt;&gt;
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const selectElements = document.querySelectorAll("select[data-id]");
+    selectElements.forEach((select) => {
+      select.addEventListener("change", function () {
+        const selectedValue = this.value;
+        const id = this.getAttribute("data-id");
+        // Gửi yêu cầu AJAX để cập nhật trạng thái đơn hàng
+        fetch(`/order/${id}/status`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: selectedValue }),
+        }).then((response) => {
+          if (response.ok) {
+            console.log("Cập nhật trạng thái thành công");
+            select.className =
+              "px-3 py-1 rounded-full text-xs font-semibold " +
+              this.options[this.selectedIndex].getAttribute("data-class");
+          } else {
+            console.error("Cập nhật trạng thái thất bại");
+          }
+        });
+      });
+    });
+  });
+</script>
+<script th:src="@{/js/sidebar.js}"></script>
+
+</html>

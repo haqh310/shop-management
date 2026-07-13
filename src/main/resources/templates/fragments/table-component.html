@@ -1,0 +1,59 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="table(title, headers, rows, totals)">
+    <div class="bg-white rounded-lg border border-gray-200 p-6 my-4 mx-2 shadow-sm">
+        <!-- Tiêu đề bảng -->
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-gray-900" th:text="${title}">Tình trạng Account</h3>
+        </div>
+
+        <!-- Container bọc bảng để hỗ trợ scroll và bo góc chuẩn chỉ -->
+        <div class="overflow-x-auto border border-gray-200 rounded-xl">
+            <table class="min-w-full divide-y divide-gray-200 border-collapse">
+                <!-- Header của bảng với màu nền xanh nhạt -->
+                <thead class="bg-indigo-50/50">
+                    <tr>
+                        <th class="px-6 py-3.5 text-left text-base font-bold text-gray-800 border-r border-gray-200">Nền
+                            tảng</th>
+                        <th:block th:each="row : ${rows}">
+                            <th class="px-6 py-3.5 text-right text-base font-bold text-gray-800 border-r border-gray-200"
+                                th:text="${row.label}">
+                                Live</th>
+                        </th:block>
+                    </tr>
+                </thead>
+
+                <!-- Body chứa dữ liệu các hàng -->
+                <tbody class="bg-white divide-y divide-gray-200 text-gray-700">
+                    <tr th:each="row, i : ${headers}">
+                        <!-- Tên nền tảng (Căn trái) -->
+                        <td class="px-6 py-3.5 text-left text-base font-medium border-r border-gray-200"
+                            th:text="${headers[i.index]}"></td>
+
+                        <!-- Các cột số liệu (Căn phải, ẩn số 0 hoặc ô trống để giống hình gốc) -->
+                        <th:block th:each="h, j: ${rows}">
+                            <td class="px-6 py-3.5 text-right text-base border-r border-gray-200"
+                                th:text="${rows[j.index].data[i.index]}">
+                            </td>
+                        </th:block>
+                    </tr>
+                </tbody>
+
+                <!-- Footer chứa hàng Total -->
+                <tfoot class="bg-indigo-50/50 font-bold text-gray-900 border-t border-gray-200">
+                    <tr>
+                        <td class="px-6 py-3.5 text-left text-base border-r border-gray-200">Total</td>
+
+                        <th:block th:each="total: ${totals}">
+                            <td class="px-6 py-3.5 text-right text-base border-r border-gray-200" th:text="${total}">0
+                            </td>
+                        </th:block>
+
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</th:block>
+
+</html>

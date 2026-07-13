@@ -1,0 +1,90 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="barChart(id, title, unit, labels, values)">
+    <!-- Không cần gọi thư viện JS ở đây nếu trang chính (dashboard) đã gọi rồi để tối ưu tốc độ -->
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6 my-4 mx-2">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6" th:text="${title}"></h3>
+        <div class="chart-container" style="position: relative; width: 100%; height: 350px">
+            <canvas th:id="${id}"></canvas>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // SỬA CHỮA: Bọc toàn bộ code JS vào trong một block (IIFE)
+        (function () {
+            const currentChartId = /*[[${id}]]*/ "defaultId";
+            const unit = /*[[${unit}]]*/ " $";
+            const labels = /*[[${labels}]]*/[];
+            const dynamicDatasets = JSON.parse(/*[[${values}]]*/ '[]');
+
+            console.log(dynamicDatasets);
+
+            const ctx = document.getElementById(currentChartId);
+
+            if (ctx) {
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: dynamicDatasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',     // Vị trí: 'top', 'bottom', 'left', 'right'
+                                labels: {
+                                    boxWidth: 5,       // Độ rộng của ô màu
+                                    padding: 15,        // Khoảng cách giữa các tên nhân viên
+                                    font: {
+                                        size: 14        // Cỡ chữ tên nhân viên
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                padding: 12,
+                                titleFont: { size: 13 },
+                                bodyFont: { size: 12 },
+                                callbacks: {
+                                    label: function (context) {
+                                        let tenNhanVien = context.dataset.label || '';
+                                        let value = context.parsed.y || 0;
+
+                                        // Trả về chuỗi hiển thị trên tooltip
+                                        return [
+                                            tenNhanVien,
+                                            value + " " + unit
+                                        ];
+                                    }
+                                },
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: "#f3f4f6", drawBorder: false },
+                                ticks: {
+                                    callback: function (value) {
+                                        return value;
+                                    },
+                                    color: "#6b7280",
+                                    font: { size: 12 },
+                                },
+                            },
+                            x: {
+                                grid: { display: false, drawBorder: false },
+                                ticks: { color: "#6b7280", font: { size: 12 } },
+                            },
+                        },
+                    },
+                });
+            }
+        })(); // <--- Kết thúc khối IIFE
+    </script>
+</th:block>
+
+</html>

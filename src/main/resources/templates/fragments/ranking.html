@@ -1,0 +1,92 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="rank(title, kpi, labels, values)">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col p-6 my-4 mx-2">
+        <!-- Header -->
+        <div class="flex justify-between items-center p-4 border-b border-gray-100">
+            <h2 class="text-lg font-bold text-gray-900" th:text="${title}">Best Seller - Week 1</h2>
+        </div>
+
+        <!-- 🏆 PHẦN 1: BỤC VINH QUANG (TOP 3) -->
+        <div class="px-4 py-6 flex justify-around items-end">
+            <!-- HẠNG 2 (Bên trái) -->
+            <div class="text-center flex flex-col items-center">
+                <div th:if="${labels.size() > 1}" class="flex flex-col items-center">
+                    <div
+                        class="w-20 h-20 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center mb-2 shadow-md">
+                        <span class="text-2xl font-bold text-gray-700">2</span>
+                    </div>
+                    <p class="text-sm font-medium text-gray-600 truncate max-w-[150px]" th:text="${labels[1]}">Nguyễn
+                        Thị Ngọc Dung</p>
+                    <p class="text-xl font-black text-gray-800 mt-1"
+                        th:text="${#numbers.formatInteger(values[1], 0, 'COMMA')}">1,724</p>
+                </div>
+            </div>
+
+
+            <!-- HẠNG 1 (Ở giữa - Cao nhất) -->
+            <div class="text-center flex flex-col items-center transform scale-110">
+                <!-- Thêm flex flex-col items-center vào đây để căn giữa chiếc vương miện và vòng tròn -->
+                <div th:if="${labels.size() > 0}" class="flex flex-col items-center">
+
+                    <!-- Thay 2 ô vuông bằng icon Vương miện vàng chuẩn UI -->
+                    <div th:if="${values[0] >= kpi}" class="mb-1 text-yellow-500 animate-bounce">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                d="M10 2a1 1 0 01.993.883L11 3v1.268l3.186-1.062a1 1 0 011.238.646l.03.097 1 3a1 1 0 01-.15.823l-.074.088L15 9.172V15a2 2 0 01-1.85 1.995L13 17H7a2 2 0 01-1.995-1.85L5 15V9.171L3.77 7.93a1 1 0 01-.29-.652l.004-.108 1-3a1 1 0 011.18-.735l.09.022L9 4.522V3a1 1 0 011-1z" />
+                        </svg>
+                    </div>
+
+                    <!-- Vòng tròn số 1 -->
+                    <div
+                        class="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 flex items-center justify-center mb-2 shadow-lg border-2 border-yellow-600">
+                        <span class="text-3xl font-bold text-yellow-900">1</span>
+                    </div>
+                    <p class="text-base font-bold text-gray-800 truncate max-w-[160px]" th:text="${labels[0]}">Lê Như
+                        Yên</p>
+                    <p class="text-2xl font-black text-gray-900 mt-1"
+                        th:text="${#numbers.formatInteger(values[0], 0, 'COMMA')}">3,507</p>
+                </div>
+            </div>
+
+            <!-- HẠNG 3 (Bên phải) -->
+            <div class="text-center flex flex-col items-center">
+                <div th:if="${labels.size() > 2}" class="flex flex-col items-center">
+                    <!-- Huy chương Đồng -->
+                    <div
+                        class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center mb-2 shadow-md">
+                        <span class="text-2xl font-bold text-orange-900">3</span>
+                    </div>
+                    <p class="text-sm font-medium text-gray-600 truncate max-w-[150px]" th:text="${labels[2]}">Dương
+                        Nguyễn Thủy Trà</p>
+                    <p class="text-xl font-black text-gray-800 mt-1"
+                        th:text="${#numbers.formatInteger(values[2], 0, 'COMMA')}">1,137</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 📋 PHẦN 2: DANH SÁCH TỪ TOP 4 TRỞ ĐI -->
+        <div class="flex-grow px-4 space-y-3">
+            <div th:each="tenNv, iterStat : ${labels}" th:if="${iterStat.index >= 3}"
+                class="flex justify-between items-center py-2 border-b border-gray-100">
+
+                <div class="flex items-center space-x-4">
+                    <!-- Số thứ tự (index + 1) -->
+                    <span class="text-gray-500 font-medium w-6" th:text="${iterStat.index+1}">4</span>
+                    <!-- Tên người bán -->
+                    <span class="text-gray-700 font-medium" th:text="${tenNv}">Dương Bảo Như</span>
+                </div>
+
+                <!-- Chỉ số bán hàng -->
+                <span class="text-gray-600 font-semibold"
+                    th:text="${#numbers.formatInteger(values[iterStat.index], 0, 'COMMA')}">881</span>
+            </div>
+
+            <!-- Trường hợp không có ai từ top 4 trở đi -->
+            <div th:if="${labels.size() <= 3}" class="text-center py-6 text-gray-400 text-sm bg-white">
+                Không có dữ liệu xếp hạng thêm.
+            </div>
+        </div>
+    </div>
+</th:block>

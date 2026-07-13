@@ -1,0 +1,121 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="stackChart(id, title, isChartPercent, labels, values)">
+    <div class="bg-white rounded-lg border border-gray-200 p-6 my-4 mx-2">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6" th:text="${title}"></h3>
+        <div class="chart-container" style="position: relative; width: 100%; height: 350px">
+            <canvas th:id="${id}"></canvas>
+        </div>
+    </div>
+
+    <!-- BẮT BUỘC: Phải có th:inline="javascript" ở đây -->
+    <script th:inline="javascript">
+        (function () {
+            // Thymeleaf tự parse Object, không cần JSON.parse() hay bọc nháy chuỗi
+            const currentChartId = /*[[${id}]]*/ "defaultId";
+            const labels = /*[[${labels}]]*/[];
+            const dynamicDatasets = /*[[${values}]]*/[];
+
+            // Đọc trạng thái loại chart từ Thymeleaf (true/false)
+            const isPercentMode = /*[[${isChartPercent}]]*/[];
+
+            const ctx = document.getElementById(currentChartId).getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: dynamicDatasets
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { stacked: true, grid: { display: false } },
+                        y: {
+                            stacked: true,
+                            // SỬA LỖI 2: Nếu là chế độ % thì ghim 0->100, nếu là số thực tế thì để tự động (undefined)
+                            min: 0,
+                            max: isPercentMode ? 100 : undefined,
+                            ticks: {
+                                callback: function (value) {
+                                    return isPercentMode ? value + "%" : value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        datalabels: {
+                            color: '#333',
+                            font: { weight: 'bold', size: 11 },
+                            textAlign: 'center',
+                            // SỬA LỖI 3: Thiết lập formatter an toàn cho cả 2 chế độ
+                            formatter: function (value, context) {
+                                // Nếu ở chế độ số lượng thì value chính là số thực tế. Nếu là % thì lấy từ _originalData
+                                const originalValue = isPercentMode
+                                    ? (context.dataset._originalData ? context.dataset._originalData[context.dataIndex] : value)
+                                    : value;
+
+                                if (!originalValue || originalValue === 0) return '';
+
+                                if (isPercentMode) {
+                                    const percentage = Math.round(value * 10) / 10;
+                                    return originalValue + '\n(' + percentage + '%)';
+                                }
+                                return originalValue; // Chế độ số thường chỉ hiện số
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            align: 'start',
+                            labels: { usePointStyle: true, pointStyle: 'circle' }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                // SỬA LỖI 1: Xử lý tooltip an toàn, không lo bị undefined _originalData
+                                label: function (context) {
+                                    const label = context.dataset.label || '';
+
+                                    if (isPercentMode) {
+                                        const originalValue = context.dataset._originalData ? context.dataset._originalData[context.dataIndex] : context.parsed.y;
+                                        const percentage = Math.round(context.parsed.y * 10) / 10;
+                                        return label + ': ' + originalValue + ' (' + percentage + '%)';
+                                    } else {
+                                        // Chế độ thường: context.parsed.y chính là số lượng thực tế
+                                        return label + ': ' + context.parsed.y;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                // Chỉ kích hoạt plugin tính % nếu isPercentMode = true
+                plugins: isPercentMode ? [{
+                    id: 'percentageStacked',
+                    beforeInit(chart) {
+                        chart.data.datasets.forEach((dataset) => {
+                            dataset._originalData = [...dataset.data];
+                        });
+                    },
+                    beforeUpdate(chart) {
+                        const numOfDataPoints = chart.data.labels.length;
+                        const totals = [];
+                        for (let i = 0; i < numOfDataPoints; i++) {
+                            let sum = 0;
+                            chart.data.datasets.forEach((dataset) => {
+                                sum += dataset._originalData[i] || 0;
+                            });
+                            totals.push(sum);
+                        }
+                        chart.data.datasets.forEach((dataset) => {
+                            dataset.data = dataset._originalData.map((val, i) => {
+                                return totals[i] > 0 ? (val / totals[i]) * 100 : 0;
+                            });
+                        });
+                    }
+                }] : []
+            });
+        })();
+    </script>
+</th:block>
+
+</html>

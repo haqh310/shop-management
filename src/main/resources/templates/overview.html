@@ -1,0 +1,51 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview Account</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <div th:replace="~{fragments/sidebar :: menu(${activePage})}"></div>
+        <div class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto p-6 sm:px-6 lg:px-8">
+                <div class="mb-6">
+                    <h1 class="text-3xl font-bold text-gray-900">Tổng quan về account</h1>
+                    <p class="text-gray-600 mt-1">
+                        Theo dõi tình trạng và doanh thu của từng account
+                    </p>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="w-full p-4">
+                    <div class="grid grid-cols-2">
+                        <div
+                            th:replace="~{fragments/table-component :: table(title='Tinh Trang Account', headers=${statusData.platform}, rows=${statusData.chartDataset}, totals=${statusData.total})}">
+                        </div>
+                        <div
+                            th:replace="~{fragments/stack-chart :: stackChart(id='chart1', title='Bieu do - Status Account', isChartPercent=false, labels=${statusData.platform}, values=${statusData.chartDataset})}">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2">
+                        <div
+                            th:replace="~{fragments/table-component :: table(title='Account theo Seller', headers=${sellerData.seller}, rows=${sellerData.chartDataset}, totals=${sellerData.total})}">
+                        </div>
+                        <div
+                            th:replace="~{fragments/stack-chart :: stackChart(id='chart2', title='Bieu do - Account theo Seller', isChartPercent=false, labels=${sellerData.seller}, values=${sellerData.chartDataset})}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script th:src="@{/js/sidebar.js}"></script>
+
+</html>

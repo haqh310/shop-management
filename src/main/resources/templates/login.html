@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<head>
+    <title>Đăng nhập</title>
+    <!-- 1. Nhúng bộ core Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. Nhúng daisyUI (Style đẹp có sẵn như Button, Card, Form) -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="bg-base-200 flex items-center justify-center min-h-screen">
+    <div class="card w-full max-w-sm shadow-2xl bg-base-100">
+        <div class="card-body">
+            <h2 class="text-2xl font-bold text-center mb-4 text-primary">ĐĂNG NHẬP</h2>
+            <!-- Thông báo lỗi nếu đăng nhập sai -->
+            <div th:if="${param.error}" class="alert alert-error py-2 mb-4 text-sm rounded-lg flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5 mr-2" fill="none"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Tài khoản hoặc mật khẩu không đúng!</span>
+            </div>
+
+            <!-- Thông báo nếu vừa Đăng xuất -->
+            <div th:if="${param.logout}" class="alert alert-success py-2 mb-4 text-sm rounded-lg flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5 mr-2" fill="none"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Đăng xuất thành công.</span>
+            </div>
+
+            <!-- Form xử lý Login của Spring Security -->
+            <form th:action="@{/login}" method="post" class="space-y-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Tài khoản</span>
+                    </label>
+                    <input type="text" name="username" placeholder="Nhập username"
+                        class="input input-bordered focus:input-primary w-full" required />
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Mật khẩu</span>
+                    </label>
+                    <input type="password" name="password" placeholder="••••••••"
+                        class="input input-bordered focus:input-primary w-full" required />
+                </div>
+
+                <div class="form-control mt-6">
+                    <button type="submit" class="btn btn-primary w-full text-white font-bold">Đăng Nhập</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
