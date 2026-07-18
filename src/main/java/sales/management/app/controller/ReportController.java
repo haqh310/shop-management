@@ -28,7 +28,7 @@ public class ReportController {
 
         @GetMapping("")
         public String showReport(
-                        @RequestParam(required = false) String monthText,
+                        @RequestParam(name = "monthText", required = false) String monthText,
                         Model model) {
                 // Lấy ngày đàu tháng và cuối tháng
                 LocalDate[] dateInMonth = BasicFunc.getStartAndEndMonth(monthText);

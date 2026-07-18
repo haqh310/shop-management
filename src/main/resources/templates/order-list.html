@@ -61,7 +61,7 @@
   </style>
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-100">
   <div class="min-h-screen">
     <div th:replace="~{fragments/sidebar :: menu(${activePage})}"></div>
     <!-- Main Content -->
@@ -71,10 +71,10 @@
         <div class="bg-white rounded-lg p-6 shadow-soft">
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-text-secondary text-sm font-medium">
+              <p class="text-secondary text-sm font-medium">
                 Tổng Đơn Hàng
               </p>
-              <p class="text-3xl font-bold text-text-primary mt-2">1,248</p>
+              <p class="text-3xl font-bold text-primary mt-2">1,248</p>
             </div>
             <span class="text-2xl">📊</span>
           </div>
@@ -83,27 +83,27 @@
         <div class="bg-white rounded-lg p-6 shadow-soft">
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-text-secondary text-sm font-medium">Chờ Xử Lý</p>
+              <p class="text-secondary text-sm font-medium">Chờ Xử Lý</p>
               <p class="text-3xl font-bold text-warning">142</p>
             </div>
             <span class="text-2xl">⏳</span>
           </div>
-          <p class="text-xs text-text-secondary mt-2">Cần xử lý ngay</p>
+          <p class="text-xs text-secondary mt-2">Cần xử lý ngay</p>
         </div>
         <div class="bg-white rounded-lg p-6 shadow-soft">
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-text-secondary text-sm font-medium">Đã Giao</p>
+              <p class="text-secondary text-sm font-medium">Đã Giao</p>
               <p class="text-3xl font-bold text-success">856</p>
             </div>
             <span class="text-2xl">✅</span>
           </div>
-          <p class="text-xs text-text-secondary mt-2">Giao hàng thành công</p>
+          <p class="text-xs text-secondary mt-2">Giao hàng thành công</p>
         </div>
         <div class="bg-white rounded-lg p-6 shadow-soft">
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-text-secondary text-sm font-medium">
+              <p class="text-secondary text-sm font-medium">
                 Tổng Doanh Thu
               </p>
               <p class="text-3xl font-bold text-primary">$45.2K</p>
@@ -113,35 +113,47 @@
           <p class="text-xs text-green-600 mt-2">+18% so với tháng trước</p>
         </div>
       </div>
-      <!-- Filters and Search -->
-      <div class="bg-white rounded-lg p-4 shadow-soft mb-6">
-        <form th:action="@{/order}" method="get"
-          class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-          <div class="flex-1 flex gap-2">
-            <div class="flex-1 w-full md:w-auto">
+      <!-- Search and Filter Section -->
+      <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
+        <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+
+          <!-- Tối ưu form với cách sắp xếp flex-wrap chuẩn chỉnh -->
+          <form th:action="@{/order}" method="get"
+            class="flex flex-col sm:flex-row flex-wrap gap-3 items-center flex-1 w-full">
+            <div class="flex-1 w-full min-w-[250px]">
               <input name="keyword" th:value="${keyword}" type="text"
                 placeholder="Tìm kiếm theo ID đơn hàng, tên sản phẩm..."
-                class="w-full px-4 py-2 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white" />
             </div>
-            <div class="flex gap-2 w-full md:w-auto">
-              <select name="statusOrder"
-                class="px-4 py-2 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                <option value="">-- Tất cả trạng thái --</option>
-                <option th:each="status : ${T(sales.management.app.enums.StatusOrder).values()}" th:value="${status}"
-                  th:text="${status.label}" th:selected="${status.name == statusOrder}"></option>
-              </select>
-              <select name="monthText"
-                class="px-4 py-2 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                <option th:each="month : ${months}" th:value="${month}" th:text="${month}"
-                  th:selected="${month == monthText}"></option>
-              </select>
-              <button type="submit"
-                class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition">
-                🔍 Tìm kiếm
-              </button>
-            </div>
-          </div>
-        </form>
+
+            <select name="statusOrder"
+              class="w-full sm:w-auto px-4 py-2 border border-neutral-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+              <option value="">-- Tất cả trạng thái --</option>
+              <option th:each="status : ${T(sales.management.app.enums.StatusOrder).values()}" th:value="${status}"
+                th:text="${status.label}" th:selected="${status.name == statusOrder}"></option>
+            </select>
+
+            <select name="monthText"
+              class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
+              <option th:each="month : ${months}" th:value="${month}" th:text="${month}"
+                th:selected="${month == monthText}"></option>
+            </select>
+
+            <button type="submit"
+              class="w-full sm:w-auto px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition whitespace-nowrap">
+              🔍 Tìm kiếm
+            </button>
+          </form>
+
+          <!-- Nút thêm đơn nằm ngoài Form để tránh submit nhầm lẫn -->
+          <th:block sec:authorize="hasAnyRole('QUAN_LY','BAN_HANG')">
+            <button id="btnOpenCreate"
+              class="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap">
+              <span>➕</span>
+              <span>Thêm Đơn</span>
+            </button>
+          </th:block>
+        </div>
       </div>
       <!-- orderPage Table -->
       <div class="bg-white rounded-lg shadow-soft overflow-hidden">
@@ -149,137 +161,187 @@
           <table class="w-full">
             <thead class="bg-gray-50 border-b border-neutral-medium">
               <tr>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                <th
+                  class="sticky left-0 z-10 w-[80px] min-w-[80px] bg-gray-100 px-6 py-4 text-left text-sm font-semibold text-primary">
                   STT
                 </th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                <th
+                  class="sticky left-[80px] z-10 w-[170px] min-w-[170px] bg-gray-100 px-6 py-4 text-left text-sm font-semibold text-primary">
                   Order Number
                 </th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                <th
+                  class="sticky left-[250px] w-[130px] min-w-[130px] z-10 bg-gray-100 px-6 py-4 text-left text-sm font-semibold text-primary">
                   Ngày Order
                 </th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                <th
+                  class="sticky left-[380px]  w-[150px] min-w-[150px] z-10 bg-gray-100 px-6 py-4 text-left text-sm font-semibold text-primary">
                   Ngày Hết Hạn
                 </th>
                 <th:block sec:authorize="hasAnyRole('QUAN_LY','BAN_HANG')">
-                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-primary">
                     Account
                   </th>
-                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-primary">
                     Seller
                   </th>
-                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
-                    Link sản phẩm
-                  </th>
-                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
-                    Tên sản phẩm
-                  </th>
-                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
-                    Số Lượng
-                  </th>
-                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
-                    Banlance
-                  </th>
-                  <th class="px-6 py-4 text-left text-sm font-semibold text-text-primary">
-                    Color
-                  </th>
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
-                    Địa chỉ
-                  </th>
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
-                    Note Seller
-                  </th>
                 </th:block>
-                <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                <th class="px-6 py-4 text-left text-sm font-semibold text-primary">
+                  Link sản phẩm
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-primary">
+                  Tên sản phẩm
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-primary">
+                  Số Lượng
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-primary">
+                  Banlance
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-primary">
+                  Color
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-primary">
+                  Color
+                </th>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
+                  Image
+                </th>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
+                  Note Seller
+                </th>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
+                  Note Kho 1
+                </th>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
+                  Note Kho 2
+                </th>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
                   Trạng thái đơn hàng
                 </th>
-                <th:block sec:authorize="hasAnyRole('QUAN_LY','KHO')">
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
-                    Tracking
-                  </th>
 
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
+                  Tracking
+                </th>
+                <th:block sec:authorize="hasAnyRole('QUAN_LY','KHO')">
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
                     Order Number Kho
                   </th>
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
                     Zip
                   </th>
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
                     Email
                   </th>
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
                     Password
                   </th>
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
                     Phone Number
                   </th>
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
                     Người đi đơn
                   </th>
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
-                    Note Kho 3
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
+                    Link Evidence
                   </th>
-                  <th class="px-6 py-4 text-center text-sm font-semibold text-text-primary">
-                    Note kho 4
+                  <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
+                    Note kho
                   </th>
                 </th:block>
+                <th class="px-6 py-4 text-center text-sm font-semibold text-primary">
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-neutral-medium">
-              <tr th:each="order, iterStat : ${orderPage}" class="hover-row transition">
-                <td class="px-6 py-4 whitespace-nowrap" th:text="${iterStat.index+1}"></td>
-                <td class="px-6 py-4 whitespace-nowrap">
+              <tr th:each="order, iterStat : ${orderPage}" th:data-id="${order.orderNumber}"
+                class="hover-row transition">
+                <td class="sticky left-0 w-[80px] min-w-[80px] z-10 bg-gray-100 px-6 py-4 whitespace-nowrap"
+                  th:text="${iterStat.index+1}">
+                </td>
+                <td class="sticky left-[80px] w-[170px] min-w-[170px] z-10 bg-gray-100 px-6 py-4 whitespace-nowrap">
                   <span class="font-semibold text-primary" th:text="${order.orderNumber}"></span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap" th:text="${order.orderDate}"></td>
-                <td class="px-6 py-4 whitespace-nowrap" th:text="${order.expiryDate}"></td>
+                <td class="sticky left-[250px] w-[130px]  min-w-[130px] z-10 bg-gray-100 px-6 py-4 whitespace-nowrap"
+                  th:text="${order.orderDate}">
+                </td>
+                <td class="sticky left-[380px] w-[150px] min-w-[150px] z-10 bg-gray-100 px-6 py-4 whitespace-nowrap"
+                  th:text="${order.expiryDate}">
+                </td>
                 <th:block sec:authorize="hasAnyRole('QUAN_LY','BAN_HANG')">
-                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.account.accountName}"></td>
-                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.account.employee.name}"></td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <a th:href="${order.productLink}" class="text-primary hover:underline" target="_blank">Xem sản
-                      phẩm</a>
-                  </td>
-                  <td>
-                    <div class="truncate max-w-[250px]" th:text="${order.productName}"></div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.quantity}"></td>
-                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.balance}"></td>
-                  <td class="px-6 py-4 whitespace-nowrap" th:text="${order.color}"></td>
-                  <td>
-                    <div class="truncate max-w-[250px]" th:text="${order.orderAddress}"></div>
-                  </td>
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteSeller}"></td>
+                  <td class="px-3 py-2 whitespace-nowrap" th:text="${order?.accountName}"></td>
+                  <td class="px-3 py-2 whitespace-nowrap" th:text="${order?.sellerName}"></td>
                 </th:block>
-                <td class="px-6 py-4 text-center whitespace-nowrap">
+                <td class="px-3 py-2 whitespace-nowrap">
+                  <a th:href="${order?.productLink}" class="text-primary hover:underline" target="_blank">Xem sản
+                    phẩm</a>
+                </td>
+                <td>
+                  <div class="truncate max-w-[250px]" th:text="${order?.productName}"></div>
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap" th:text="${order?.quantity}"></td>
+                <td class="px-3 py-2 whitespace-nowrap" th:text="${order?.balance}"></td>
+                <td class="px-3 py-2 whitespace-nowrap" th:text="${order?.color}"></td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                  <div class="relative inline-block group"
+                    th:if="${order?.productImage != null and !#strings.isEmpty(order?.productImage)}">
+                    <img th:if="${order?.productImage != ''}" th:src="${order?.productImage}" alt="Ảnh sản phẩm"
+                      class="w-8 h-8 object-cover rounded-lg cursor-pointer">
+
+                    <!-- Ảnh phóng to -->
+                    <!-- <div class="absolute left-full top-0 ml-3 z-50 bg-white border">
+                      <img th:src="${order.productImage}">
+                    </div>
+                  </div> -->
+                </td>
+                <td>
+                  <div class="truncate max-w-[250px]" th:text="${order?.orderAddress}"></div>
+                </td>
+                <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.noteSeller}"></td>
+
+                <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.noteWarehouse1}">
+                </td>
+                <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.noteWarehouse2}">
+                </td>
+                <!-- Trang thai don hang -->
+                <td class="px-3 py-2 text-center whitespace-nowrap">
                   <select th:data-id="${order.orderNumber}" class="px-3 py-1 rounded-full text-xs font-semibold"
-                    th:classappend="${order.status.cssClass}">
+                    th:classappend="${order?.status.cssClass}">
                     <option th:each="status : ${T(sales.management.app.enums.StatusOrder).values()}"
-                      th:value="${status}" th:text="${status.label}" th:selected="${status == order.status}"
+                      th:value="${status}" th:text="${status.label}" th:selected="${status == order?.status}"
                       th:data-class="${status.cssClass}" th:classappend="${status.cssClass}"
                       class="px-3 py-1 rounded-full text-xs font-semibold"></option>
                   </select>
                 </td>
-                <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteKho1}"></td>
-                <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteKho2}"></td>
+                <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.tracking}"></td>
                 <th:block sec:authorize="hasAnyRole('QUAN_LY','KHO')">
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.tracking}"></td>
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.orderNumberKho}"></td>
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.zip}"></td>
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.email}"></td>
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.password}"></td>
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.phoneNumber}"></td>
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.employee.name}"></td>
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteKho3}"></td>
-                  <td class="px-6 py-4 text-center whitespace-nowrap" th:text="${order.noteKho4}"></td>
+                  <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.orderNumberWarehouse}">
+                  </td>
+                  <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.zip}"></td>
+                  <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.email}"></td>
+                  <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.password}"></td>
+                  <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.phoneNumber}">
+                  </td>
+                  <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.warehouseName}">
+                  </td>
+                  <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.linkEvidence}">
+                  </td>
+                  <td class="px-3 py-2 text-center whitespace-nowrap" th:text="${order?.noteWarehouse}">
+                  </td>
                 </th:block>
+                <td class="px-3 py-2 text-center whitespace-nowrap">
+                  <button id="btnOpenUpdate" th:data-id="${order?.orderNumber}"
+                    class="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 btn-edit bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap">
+                    <span>➕</span>
+                    <span>Update Đơn</span>
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
         <!-- Pagination -->
         <div class="px-6 py-4 border-t border-neutral-medium flex justify-between items-center">
-          <p class="text-sm text-text-secondary"
+          <p class="text-sm text-secondary"
             th:text="'Hiển thị ' + ${orderPage.number * orderPage.size + 1} + '-' + ${orderPage.number * orderPage.size + orderPage.numberOfElements} + ' trong ' + ${orderPage.totalElements} + ' đơn hàng'">
           </p>
           <div th:if="${orderPage.totalPages > 0}" class="flex gap-2">
@@ -310,10 +372,10 @@
                 </a>
               </th:block>
 
-              <span th:if="${endPage < orderPage.totalPages-2}"> ... </span>
+              <span th:if="${endPage &lt; orderPage.totalPages-2}"> ... </span>
 
               <!-- Trang cuối -->
-              <a th:if="${endPage < orderPage.totalPages-1}"
+              <a th:if="${endPage &lt; orderPage.totalPages-1}"
                 th:href="@{/order(keyword=${keyword}, statusOrder=${statusOrder}, monthText=${monthText}, page=${orderPage.totalPages-1}, size=${orderPage.size})}"
                 class="px-2 py-2 text-blue-500">
                 [[${orderPage.totalPages}]]
@@ -329,7 +391,51 @@
       </div>
     </main>
   </div>
+
+  <div
+    th:replace="~{fragments/create-order-modal :: modal(id='createOrderModal', title='Tạo Đơn Hàng Mới', imageUpload='imageUploadCreate', imagePreviewContainer='previewContainerCreate', imagePreview='previewImgCreate')}">
+  </div>
+
+  <div
+    th:replace="~{fragments/create-warehouse-modal :: modal(id='createWarehouserModal', title='Update thông tin', imageUpload='imageUploadUpdate', imagePreviewContainer='previewContainerUpdate', imagePreview='previewImgUpdate')}">
+  </div>
 </body>
+
+<th:block layout:fragment="page-scripts">
+  <!-- 1. Import file JS ở trên -->
+  <script th:src="@{/js/order-modal.js}"></script>
+  <script th:src="@{/js/warehouse-modal.js}"></script>
+
+  <!-- 2. Khởi tạo bằng cách truyền ID động -->
+  <script th:inline="javascript">
+
+    // 1. Khởi tạo cho Modal "Tạo mới đơn hàng"
+    initModalCreateController({
+      modalId: "createOrderModal",
+      openBtnId: "btnOpenCreate",     // ID nút "Tạo mới" ngoài màn hình chính
+      // closeBtnId: "btnCloseCreate",   // ID nút hủy trong form tạo mới
+      uploadInputId: "imageUploadCreate",
+      previewContainerId: "previewContainerCreate",
+      previewImgId: "previewImgCreate",
+      submitUrl: "/oder/create"
+    });
+
+    initModalUpdateWarehouseController({
+      modalId: "createWarehouserModal",
+      openBtnId: "btnOpenUpdate",
+      editBtnClass: "btn-edit",
+      uploadInputId: "imageUploadUpdate",
+      previewContainerId: "previewContainerUpdate",
+      previewImgId: "previewImgUpdate",
+      fetchUrlPattern: "/api/warehouse/{id}",
+      submitUrlPattern: "/api/warehouse/save"
+    });
+  </script>
+
+
+
+  <script th:src="@{/js/sidebar.js}"></script>
+</th:block>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -359,6 +465,5 @@
     });
   });
 </script>
-<script th:src="@{/js/sidebar.js}"></script>
 
 </html>

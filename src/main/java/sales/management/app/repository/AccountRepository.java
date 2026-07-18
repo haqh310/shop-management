@@ -12,6 +12,8 @@ import sales.management.app.enums.StatusAccount;
 public interface AccountRepository extends JpaRepository<Account, String> {
     List<Account> findByStatus(StatusAccount tinhTrang);
 
+    Account findByAccountName(String accountName);
+
     @Query(value = """
                 SELECT e.name AS employeeName, COUNT(a.accountName) AS count
                 FROM accounts a
@@ -50,12 +52,12 @@ public interface AccountRepository extends JpaRepository<Account, String> {
             """, nativeQuery = true)
     List<Map<String, Object>> getAccountStatusCountByPlatform();
 
-     @Query(value = """
-                SELECT e.name, COALESCE(a.platform, '') AS platform, a.status AS status, COUNT(a.account_name) AS count
+    @Query(value = """
+                SELECT COALESCE(e.name, '') AS employeeName, COALESCE(a.platform, '') AS platform, a.status AS status, COUNT(a.account_name) AS count
                 FROM accounts a
                 LEFT JOIN employees e ON e.id = a.employee_id
                 GROUP BY e.name, a.platform, a.status
-                ORDER BY a.platform DESC
+                ORDER BY e.name DESC
             """, nativeQuery = true)
-    List<Map<String, Object>> getAccountCountBySellerPlatform();
+    List<Map<String, Object>> getAccountBySellerPlatform();
 }

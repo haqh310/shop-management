@@ -14,9 +14,15 @@ import java.util.*;
 public class CustomUserDetails implements UserDetails {
 
     private final Employee employee;
+    private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(Employee employee) {
+    public CustomUserDetails(Employee employee, Collection<? extends GrantedAuthority> authorities) {
         this.employee = employee;
+        this.authorities = authorities;
+    }
+
+    public Integer getId() {
+        return employee.getId();
     }
 
     public String getName() {
@@ -61,5 +67,24 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public boolean isAdmin() {
+        return hasRole("ROLE_QUAN_LY");
+    }
+
+    public boolean isSeller() {
+        return hasRole("ROLE_BAN_HANG");
+    }
+
+    public boolean isWarehouse() {
+        return hasRole("ROLE_KHO");
+    }
+
+    private boolean hasRole(String roleName) {
+        if (this.authorities == null)
+            return false;
+        return this.authorities.stream()
+                .anyMatch(auth -> auth.getAuthority().equals(roleName));
     }
 }

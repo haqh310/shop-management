@@ -1,0 +1,84 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="table(title, data, totals)">
+    <div class="p-6 bg-gray-50 min-h-screen">
+        <!-- Card Container -->
+        <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
+            <!-- Title -->
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800" th:text="${title}">Account theo Seller / Nền tảng</h2>
+            </div>
+
+            <!-- Table Container -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <!-- Table Head -->
+                    <thead>
+                        <tr class="bg-indigo-50/50 text-gray-700 font-semibold text-sm border-b border-gray-200">
+                            <th class="px-4 py-3 border-r border-gray-200 w-1/4">Seller quản lý</th>
+                            <th class="px-4 py-3 border-r border-gray-200">Nền tảng</th>
+                            <th:block th:each="status:  ${T(sales.management.app.enums.StatusAccount).values()}">
+                                <th class="px-4 py-3 border-r border-gray-200 text-right" th:text="${status.label}">Live
+                                </th>
+                            </th:block>
+                            <!-- Cột trống như trong ảnh -->
+                            <th class="px-4 py-3 text-right">Total</th>
+                        </tr>
+                    </thead>
+
+                    <!-- Table Body -->
+                    <tbody class="text-sm text-gray-600 divide-y divide-gray-200">
+                        <!-- Lặp qua từng Seller -->
+                        <th:block th:each="seller : ${data}">
+                            <!-- Lặp qua từng Nền tảng của Seller đó -->
+                            <tr th:each="platform, iterStat : ${seller.platforms}" class="hover:bg-gray-50/80">
+
+                                <!-- Ô Seller quản lý: Chỉ hiển thị ở dòng đầu tiên của Seller đó và gộp dòng (rowspan) -->
+                                <td th:if="${iterStat.first}" th:rowspan="${seller.platforms.size()}"
+                                    th:text="${seller.sellerName}"
+                                    class="px-4 py-3 font-medium text-gray-900 border-r border-gray-200 align-middle bg-white">
+                                    Tên Seller
+                                </td>
+
+                                <!-- Các ô thông tin của Nền tảng -->
+                                <td th:text="${platform.platformName}" class="px-4 py-3 border-r border-gray-200">Tiktok
+                                </td>
+
+                                <!-- Sử dụng toán tử điều kiện để ẩn số 0 nếu không có account nào giống trong ảnh -->
+                                <th:block th:each="count : ${platform.countList}">
+                                    <td th:text="${count > 0 ? count : ''}"
+                                        class="px-4 py-3 border-r border-gray-200 text-right">2</td>
+                                </th:block>
+
+                                <!-- Cột Total của riêng nền tảng đó -->
+                                <td th:text="${platform.totalOfPlatform}"
+                                    class="px-4 py-3 text-right font-medium text-gray-700">15</td>
+                            </tr>
+                        </th:block>
+                    </tbody>
+
+                    <!-- Footer chứa hàng Total -->
+                    <tfoot class="bg-indigo-50/50 font-bold text-gray-900 border-t border-gray-200">
+                        <tr>
+                            <td class="px-6 py-3.5 text-left text-base border-r border-gray-200" colspan="2">Total</td>
+
+                            <th:block th:each="total: ${totals}">
+                                <td class="px-6 py-3.5 text-right text-base border-r border-gray-200"
+                                    th:text="${total}">0
+                                </td>
+                            </th:block>
+
+                            <td class="px-6 py-3.5 text-right text-base border-r border-gray-200">
+                            </td>
+
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</th:block>
+
+</html>

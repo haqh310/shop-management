@@ -25,7 +25,7 @@
             <!-- Main Content -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div class="w-full p-4">
-                    <div class="grid grid-cols-2">
+                    <div class="grid grid-cols-2 gap-6 items-stretch">
                         <div
                             th:replace="~{fragments/table-component :: table(title='Tinh Trang Account', headers=${statusData.platform}, rows=${statusData.chartDataset}, totals=${statusData.total})}">
                         </div>
@@ -33,13 +33,17 @@
                             th:replace="~{fragments/stack-chart :: stackChart(id='chart1', title='Bieu do - Status Account', isChartPercent=false, labels=${statusData.platform}, values=${statusData.chartDataset})}">
                         </div>
                     </div>
-                    <div class="grid grid-cols-2">
+                    <div class="grid grid-cols-2 gap-6 items-stretch">
                         <div
                             th:replace="~{fragments/table-component :: table(title='Account theo Seller', headers=${sellerData.seller}, rows=${sellerData.chartDataset}, totals=${sellerData.total})}">
                         </div>
                         <div
                             th:replace="~{fragments/stack-chart :: stackChart(id='chart2', title='Bieu do - Account theo Seller', isChartPercent=false, labels=${sellerData.seller}, values=${sellerData.chartDataset})}">
                         </div>
+                    </div>
+
+                    <div
+                        th:replace="~{fragments/table-seller-platform :: table(title='Account theo Seller/Nen Tang', data=${sellerPlatformData.data}, totals=${sellerData.total})}">
                     </div>
                 </div>
             </div>

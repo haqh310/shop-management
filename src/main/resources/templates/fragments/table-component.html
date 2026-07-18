@@ -33,7 +33,7 @@
                         <!-- Các cột số liệu (Căn phải, ẩn số 0 hoặc ô trống để giống hình gốc) -->
                         <th:block th:each="h, j: ${rows}">
                             <td class="px-6 py-3.5 text-right text-base border-r border-gray-200"
-                                th:text="${rows[j.index].data[i.index]}">
+                                th:text="${rows[j.index].data[i.index] > 0 ? rows[j.index].data[i.index] : ''}">
                             </td>
                         </th:block>
                     </tr>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="modal(id, title, imageUpload, imagePreviewContainer, imagePreview)">
+    <div th:id="${id}"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full flex flex-col max-h-[90vh]">
+
+            <!-- Modal Header -->
+            <div
+                class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 md:px-8 md:py-5 flex items-center justify-between shrink-0 rounded-t-lg">
+                <h2 class="text-xl md:text-2xl font-bold text-white" th:text="${title}">Tạo Đơn Hàng Mới</h2>
+                <!-- Thêm class btn-close-modal thay vì gọi hàm cứng -->
+                <button type="button"
+                    class="btn-close-modal text-white hover:text-red-500 text-2xl leading-none">✕</button>
+            </div>
+
+            <!-- Loại bỏ onsubmit định sẵn ở đây -->
+            <form class="flex flex-col flex-1 overflow-hidden">
+                <!-- Modal Body -->
+                <div class="p-6 md:p-8 overflow-y-auto flex-1 space-y-4 text-gray-700">
+                    <!-- Row 1 -->
+                    <div class="grid grid-cols-10 gap-3">
+                        <div class="col-span-10 sm:col-span-5">
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Order ID <span
+                                    class="text-red-500">*</span></label>
+                            <input name="orderNumber" type="text" placeholder="ORD001237" required
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        </div>
+                        <div class="col-span-10 sm:col-span-5">
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Account <span
+                                    class="text-red-500">*</span></label>
+                            <input name="account" type="text" placeholder="email@mail.com" required
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div class="grid grid-cols-10 gap-3">
+                        <div class="col-span-10 sm:col-span-5">
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Ngày Order <span
+                                    class="text-red-500">*</span></label>
+                            <input name="orderDate" type="date" required
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        </div>
+                        <div class="col-span-10 sm:col-span-5">
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Tên Sản Phẩm <span
+                                    class="text-red-500">*</span></label>
+                            <input name="productName" type="text" placeholder="Sản phẩm A" required
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Row 3 -->
+                    <div class="grid grid-cols-10 gap-3">
+                        <div class="col-span-10 sm:col-span-5">
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Ngày Hết Hạn <span
+                                    class="text-red-500">*</span></label>
+                            <input name="expiryDate" type="date" required
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        </div>
+                        <div class="col-span-5 sm:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Số Lượng <span
+                                    class="text-red-500">*</span></label>
+                            <input name="quantity" type="number" placeholder="5" min="1" required
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        </div>
+                        <div class="col-span-5 sm:col-span-3">
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Balance <span
+                                    class="text-red-500">*</span></label>
+                            <input name="balance" type="number" placeholder="0.0" min="1" required
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Row 4 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Color <span
+                                    class="text-red-500">*</span></label>
+                            <textarea name="color" placeholder="Mô tả sản phẩm" rows="3" required
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Địa chỉ <span
+                                    class="text-red-500">*</span></label>
+                            <textarea name="address" placeholder="Thông tin đơn hàng" rows="3" required
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Row 5 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Link Sản Phẩm</label>
+                            <input name="productLink" type="text" placeholder="https://example.com/product"
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Note Seller</label>
+                            <input name="noteSeller" type="text" placeholder="Note..."
+                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Row 6: Image Upload -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-900 mb-1">Hình Ảnh Sản Phẩm</label>
+                        <div th:id="${imagePreviewContainer}" class="mb-2 hidden">
+                            <div class="relative inline-block">
+                                <img th:id="${imagePreview}" src="" alt="Preview"
+                                    class="h-16 w-16 object-cover rounded-lg border border-gray-300">
+                                <!-- Thêm class để JS tự bắt sự kiện xóa -->
+                                <button type="button"
+                                    class="btn-remove-img absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors">✕</button>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <input name="productImage" type="file" th:id="${imageUpload}" accept="image/*"
+                                class="hidden">
+                            <!-- Thêm class hỗ trợ khu vực drag & drop 'upload-zone' -->
+                            <button type="button"
+                                class="upload-zone w-full px-4 py-2.5 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors flex flex-col items-center justify-center gap-1 cursor-pointer">
+                                <span class="text-xl">📸</span>
+                                <span class="text-xs font-medium text-gray-600">Click để chọn hình ảnh hoặc kéo thả
+                                    file</span>
+                                <span class="text-[10px] text-gray-500">Hỗ trợ: JPG, PNG, GIF (Max 5MB)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div
+                    class="flex gap-3 justify-end border-t border-gray-200 px-6 py-4 md:px-8 shrink-0 bg-gray-50 rounded-b-lg">
+                    <button type="button"
+                        class="btn-close-modal px-5 py-1.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors text-sm">Hủy</button>
+                    <button type="submit"
+                        class="px-5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors text-sm">Tạo
+                        Đơn Hàng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</th:block>
+
+</html>

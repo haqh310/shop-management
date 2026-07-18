@@ -1,7 +1,8 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="barChart(id, title, unit, labels, values)">
-    <!-- Không cần gọi thư viện JS ở đây nếu trang chính (dashboard) đã gọi rồi để tối ưu tốc độ -->
+    <!-- Đảm bảo trang chính (dashboard) của bạn đã nhúng file script này: -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script> -->
 
     <div class="bg-white rounded-lg border border-gray-200 p-6 my-4 mx-2">
         <h3 class="text-lg font-semibold text-gray-900 mb-6" th:text="${title}"></h3>
@@ -11,7 +12,6 @@
     </div>
 
     <script th:inline="javascript">
-        // SỬA CHỮA: Bọc toàn bộ code JS vào trong một block (IIFE)
         (function () {
             const currentChartId = /*[[${id}]]*/ "defaultId";
             const unit = /*[[${unit}]]*/ " $";
@@ -29,48 +29,78 @@
                         labels: labels,
                         datasets: dynamicDatasets
                     },
+                    // Kích hoạt plugin hiển thị số trên đầu cột
+                    plugins: [ChartDataLabels],
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 display: true,
-                                position: 'top',     // Vị trí: 'top', 'bottom', 'left', 'right'
+                                position: 'top',
                                 labels: {
-                                    boxWidth: 5,       // Độ rộng của ô màu
-                                    padding: 15,        // Khoảng cách giữa các tên nhân viên
-                                    font: {
-                                        size: 14        // Cỡ chữ tên nhân viên
-                                    }
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+
+
+                                    boxWidth: 8,
+                                    boxHeight: 8,
+
+                                    padding: 20,
+                                    font: { size: 11 }
                                 }
                             },
+                            // 🌟 1. CẤU HÌNH TOOLTIP GỘP THEO CỤM (KHI HOVER)
                             tooltip: {
-                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                mode: 'index',       // Gom tất cả cột cùng index vào 1 tooltip
+                                intersect: false,    // Hover vào vùng trống của cụm vẫn hiện tooltip
+                                backgroundColor: "rgba(255, 255, 255, 0.95)", // Nền trắng bo góc giống hình
+                                borderColor: "#e5e7eb",
+                                borderWidth: 1,
                                 padding: 12,
-                                titleFont: { size: 13 },
-                                bodyFont: { size: 12 },
-                                callbacks: {
-                                    label: function (context) {
-                                        let tenNhanVien = context.dataset.label || '';
-                                        let value = context.parsed.y || 0;
+                                titleColor: "#1f2937",
+                                bodyColor: "#4b5563",
+                                titleFont: { size: 10 },
+                                bodyFont: { size: 10 },
+                                boxPadding: 6,
 
-                                        // Trả về chuỗi hiển thị trên tooltip
-                                        return [
-                                            tenNhanVien,
-                                            value + " " + unit
-                                        ];
+                                callbacks: {
+                                    title: function (context) {
+                                        // Hiển thị tên cụm (Tên nhân viên) ở trên cùng tooltip
+                                        return context[0].label;
+                                    },
+                                    label: function (context) {
+                                        let trangThai = context.dataset.label || '';
+                                        let value = context.parsed.y !== null ? context.parsed.y : 0;
+                                        // Trả về định dạng: "Tên trạng thái: Số lượng đơn"
+                                        return trangThai + ": " + value + " " + unit;
                                     }
                                 },
                             },
+                            // 🌟 2. CẤU HÌNH SỐ ĐƠN LUÔN HIỂN THỊ TRÊN ĐẦU TỪNG CỘT
+                            datalabels: {
+                                anchor: 'end',    // Neo ở đỉnh cột
+                                align: 'top',     // Hiển thị phía trên đỉnh cột
+                                offset: 2,        // Khoảng cách cách đỉnh cột 2px
+                                color: function (context) {
+                                    // Tự động lấy chữ trùng màu với cột cho đồng bộ chuyên nghiệp
+                                    return context.dataset.backgroundColor || '#4b5563';
+                                },
+                                font: {
+                                    weight: 'bold',
+                                    size: 12
+                                },
+                                formatter: function (value) {
+                                    // Hiển thị số (ví dụ: 12, 7, 4...). Nếu là 0 vẫn hiện số 0 giống như hình thiết kế của bạn.
+                                    return value;
+                                }
+                            }
                         },
                         scales: {
                             y: {
                                 beginAtZero: true,
                                 grid: { color: "#f3f4f6", drawBorder: false },
                                 ticks: {
-                                    callback: function (value) {
-                                        return value;
-                                    },
                                     color: "#6b7280",
                                     font: { size: 12 },
                                 },
@@ -78,12 +108,14 @@
                             x: {
                                 grid: { display: false, drawBorder: false },
                                 ticks: { color: "#6b7280", font: { size: 12 } },
+                                categoryPercentage: 0.5,
+                                barPercentage: 0.5
                             },
                         },
                     },
                 });
             }
-        })(); // <--- Kết thúc khối IIFE
+        })();
     </script>
 </th:block>
 

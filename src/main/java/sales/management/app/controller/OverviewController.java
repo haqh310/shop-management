@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import sales.management.app.service.OverviewService;
 import sales.management.app.service.PerformanceService;
 
@@ -25,10 +26,14 @@ public class OverviewController {
     public String getOverview(Model model) {
 
         Map<String, Object> statusData = overviewService.getAccountCountByPlatform();
+
         Map<String, Object> sellerData = performanceService.findAccountStatusSumary();
+
+        Map<String, Object> sellerPlatformData = overviewService.getAccountBySellerPlatform();
 
         model.addAttribute("statusData", statusData);
         model.addAttribute("sellerData", sellerData);
+        model.addAttribute("sellerPlatformData", sellerPlatformData);
         model.addAttribute("activePage", "overview");
         return "overview";
     }

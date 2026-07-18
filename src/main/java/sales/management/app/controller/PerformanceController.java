@@ -7,6 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import sales.management.app.service.PerformanceService;
 import sales.management.app.utils.BasicFunc;
 
@@ -24,8 +27,8 @@ public class PerformanceController {
         this.performanceService = performanceService;
     }
 
-    @GetMapping("")
-    public String index(@RequestParam(required = false) String monthText,
+    @GetMapping("/seller")
+    public String getSellerScreen(@RequestParam(name = "monthText", required = false) String monthText,
             Model model) {
         // Lấy ngày đàu tháng và cuối tháng
         LocalDate[] dateInMonth = BasicFunc.getStartAndEndMonth(monthText);
@@ -53,7 +56,55 @@ public class PerformanceController {
         model.addAttribute("months", BasicFunc.getMonth());
         model.addAttribute("monthText", monthText);
         model.addAttribute("activePage", "performance");
-        return "performance";
+        return "performance-seller";
+    }
+
+    @GetMapping("/warehouse")
+    public String getWarehouseScreen(@RequestParam(name = "monthText", required = false) String monthText,
+            Model model) {
+        // Lấy ngày đàu tháng và cuối tháng
+        LocalDate[] dateInMonth = BasicFunc.getStartAndEndMonth(monthText);
+
+        // Thống kê đơn hàng của kho trong hôm nay
+        Map<String, Object> todayOrderData = performanceService.getOrderOfWarehouseSumary(LocalDate.now(),
+                LocalDate.now());
+
+        // Thống kê doanh thu của kho trong hôm nay
+        Map<String, Object> todayBalanceData = performanceService.getBalanceOfWarehouse(LocalDate.now(),
+                LocalDate.now());
+
+        // Thống kê đơn hàng của kho trong tháng
+        Map<String, Object> monthOrderData = performanceService.getOrderOfWarehouseSumary(dateInMonth[0],
+                dateInMonth[1]);
+
+        // Thống kê đơn hàng của kho trong tháng
+        Map<String, Object> monthBalanceData = performanceService.getBalanceOfWarehouse(dateInMonth[0],
+                dateInMonth[1]);
+
+        // Convert dữ liệu dataset sang Json
+        ObjectMapper objectMapper = new ObjectMapper();
+        String todayStatusDatasetsJson = "";
+        String monthStatusDatasetsJson = "";
+        try {
+            todayStatusDatasetsJson = objectMapper
+                    .writeValueAsString(todayOrderData.get("dataset"));
+            monthStatusDatasetsJson = objectMapper
+                    .writeValueAsString(monthOrderData.get("dataset"));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace(); // Log lỗi nếu ép kiểu JSON thất bại
+        }
+
+        model.addAttribute("employeeList", todayOrderData.get("employee"));
+        model.addAttribute("todayOrderDataJson", todayStatusDatasetsJson);
+        model.addAttribute("todayBalanceData", todayBalanceData.get("balance"));
+        model.addAttribute("monthOrderDataJson", monthStatusDatasetsJson);
+        model.addAttribute("monthBalanceData", monthBalanceData.get("balance"));
+
+        model.addAttribute("months", BasicFunc.getMonth());
+        model.addAttribute("monthText", monthText);
+        model.addAttribute("activePage", "performance");
+        return "performance-warehouse";
+
     }
 
 }

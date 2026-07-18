@@ -14,7 +14,6 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class Order {
     @Id
     @Column(name = "order_number")
@@ -37,10 +36,8 @@ public class Order {
     private String orderAddress;
     @Enumerated(EnumType.STRING)
     private StatusOrder status;
-    private String noteSeller, noteKho1, noteKho2, tracking, orderNumberKho, zip, email, password, phoneNumber;
+    private String noteSeller;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
-    private String noteKho3, noteKho4;
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private OrderWarehouse orderWarehouse;
 }

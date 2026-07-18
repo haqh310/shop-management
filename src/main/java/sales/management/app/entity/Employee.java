@@ -38,7 +38,7 @@ public class Employee {
     private String color;
     private String avatar;
     @OneToMany(mappedBy = "employee")
-    private List<Order> orderList = new ArrayList<>();
+    private List<OrderWarehouse> orderWarehouseList = new ArrayList<>();
     @OneToMany(mappedBy = "employee")
     private List<Account> accountList = new ArrayList<>();
 }

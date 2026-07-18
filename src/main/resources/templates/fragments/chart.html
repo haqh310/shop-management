@@ -48,9 +48,12 @@
                 pointBackgroundColor: "#2563eb",
                 pointBorderColor: "#ffffff",
                 pointBorderWidth: 2,
+                maxBarThickness: chartType === "bar" ? 55 : null
               },
             ],
           },
+          // 🌟 KÍCH HOẠT PLUGIN HIỂN THỊ VALUE TRÊN ĐẦU ĐỒ THỊ
+          plugins: [ChartDataLabels],
           options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -61,12 +64,32 @@
                 padding: 12,
                 titleFont: { size: 13 },
                 bodyFont: { size: 12 },
+                boxPadding: 6,
                 callbacks: {
                   label: function (context) {
                     return context.parsed.y + " " + unit;
                   },
                 },
               },
+              // 🌟 CẤU HÌNH NHÃN SỐ TRÊN ĐẦU CỘT / ĐẦU MẮT LƯỚI LINE
+              datalabels: {
+                // Nếu là cột (bar) thì neo ở đỉnh cột, nếu là đường (line) thì neo phía trên điểm chấm tròn
+                anchor: chartType === 'bar' ? 'end' : 'center',
+                align: 'top',       // Đẩy text hiển thị lên phía trên
+                offset: chartType === 'bar' ? 4 : 6, // Khoảng cách giãn cách theo pixel
+                color: function (context) {
+                  // Đổi màu chữ tự động: Biểu đồ cột dùng chữ màu xám đậm, biểu đồ đường dùng chữ xanh dương cho nổi bật
+                  return chartType === 'bar' ? '#4b5563' : '#2563eb';
+                },
+                font: {
+                  weight: 'bold',
+                  size: 11
+                },
+                formatter: function (value) {
+                  // Hiển thị giá trị kèm đơn vị truyền vào (ví dụ: 4388.51 $)
+                  return value + " " + unit;
+                }
+              }
             },
             scales: {
               y: {
@@ -83,12 +106,14 @@
               x: {
                 grid: { display: false, drawBorder: false },
                 ticks: { color: "#6b7280", font: { size: 12 } },
+                categoryPercentage: chartType === "bar" ? 0.4 : 0.8,
+                barPercentage: chartType === "bar" ? 0.6 : 0.9
               },
             },
           },
         });
       }
-    })(); // <--- Kết thúc khối IIFE
+    })();
   </script>
 </th:block>
 

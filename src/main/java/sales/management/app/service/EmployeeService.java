@@ -23,11 +23,11 @@ public class EmployeeService {
     }
 
     public List<Employee> getSellers() {
-        return employeeRepository.findByRole(Role.BAN_HANG);
+        return employeeRepository.findByRole("BAN_HANG");
     }
 
     public List<Employee> getKhos() {
-        return employeeRepository.findByRole(Role.KHO);
+        return employeeRepository.findByRole("KHO");
     }
 
     public Employee getNhanVienById(@NonNull Long id) {
