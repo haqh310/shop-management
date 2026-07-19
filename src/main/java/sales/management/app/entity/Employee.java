@@ -37,8 +37,12 @@ public class Employee {
     private Date leaving_date;
     private String color;
     private String avatar;
+
+    @Builder.Default
     @OneToMany(mappedBy = "employee")
-    private List<OrderWarehouse> orderWarehouseList = new ArrayList<>();
+    private  List<OrderWarehouse> orderWarehouseList = new ArrayList<>();
+
+    @Builder.Default
     @OneToMany(mappedBy = "employee")
-    private List<Account> accountList = new ArrayList<>();
+    private  List<Account> accountList = new ArrayList<>();
 }

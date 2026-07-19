@@ -1,6 +1,7 @@
 package sales.management.app.controller;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.data.domain.PageRequest;
@@ -42,7 +43,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping("")
+    @GetMapping({ "", "/" })
     public String orderPage(
             @RequestParam(name = "page", required = false, defaultValue = "0") String page,
             @RequestParam(name = "size", required = false, defaultValue = "10") String size,
@@ -98,11 +99,11 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> postMethodName(@ModelAttribute OrderFormDTO createOrderDTO) {
+    @PostMapping("/save")
+    public ResponseEntity<?> saveOrder(@ModelAttribute OrderFormDTO dto) {
         try {
             // Chuyển toàn bộ gánh nặng xử lý cho Service
-            orderService.save(createOrderDTO);
+            orderService.save(dto);
 
             Map<String, Object> response = new HashMap<>();
             response.put("status", "success");
@@ -116,6 +117,15 @@ public class OrderController {
             return ResponseEntity.internalServerError().body("Lỗi hệ thống không xác định.");
         }
 
+    }
+
+    @PostMapping("import-csv")
+    public ResponseEntity<?> importCSV(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File không được để trống!");
+        }
+
+        return ResponseEntity.ok("");
     }
 
 }

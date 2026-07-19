@@ -23,8 +23,9 @@ public class Order {
     @Temporal(TemporalType.DATE)
     private Date expiryDate;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_name")
+    @JoinColumn(name = "account_name", nullable = true)
     private Account account;
+    @Column(columnDefinition = "TEXT")
     private String productLink;
     @Column(columnDefinition = "TEXT")
     private String productName;
@@ -36,8 +37,12 @@ public class Order {
     private String orderAddress;
     @Enumerated(EnumType.STRING)
     private StatusOrder status;
+    @Column(columnDefinition = "TEXT")
     private String noteSeller;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<OrderWarehouse> orderWarehouseList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private OrderWarehouse orderWarehouse;
 }

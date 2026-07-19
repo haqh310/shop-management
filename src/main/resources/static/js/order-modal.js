@@ -144,8 +144,18 @@ function initModalCreateController({
 
   // Mở modal khi bấm nút thêm mới ngoài màn hình chính
   if (openBtnEl) {
-    openBtnEl.addEventListener("click", (e) => {
+    openBtnEl.addEventListener("click", async function (e) {
       e.preventDefault();
+
+      // get data accounts
+      const response = await fetch("/api/account/list");
+      const accountData = await response.json();
+      const selectField = document.querySelector('select[name="account"]');
+      selectField.innerHTML = '<option value="">-- Chọn Account --</option>';
+      accountData.forEach((name) => {
+        selectField.innerHTML += `<option value="${name}" >${name}</option>`;
+      });
+
       modalEl?.classList.remove("hidden");
       document.body.style.overflow = "hidden";
     });
@@ -260,8 +270,14 @@ function initModalUpdateController({
         });
 
         // Xử lý hiển thị ảnh hiện tại đang có trên máy chủ
-        if (orderData.productImage && previewImgEl && previewContainerEl) {
-          previewImgEl.src = orderData.productImage;
+        if (orderData.productImagePath && previewImgEl && previewContainerEl) {
+          let cleanPath = orderData.productImagePath.replace(/\\/g, "/");
+
+          // 2. Đảm bảo có dấu / ở đầu đường dẫn
+          if (!cleanPath.startsWith("/")) {
+            cleanPath = "/" + cleanPath;
+          }
+          previewImgEl.src = cleanPath;
           previewContainerEl.classList.remove("hidden");
         }
 

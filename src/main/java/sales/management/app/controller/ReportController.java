@@ -26,7 +26,7 @@ public class ReportController {
                 this.reportService = reportService;
         }
 
-        @GetMapping("")
+        @GetMapping({"", "/"})
         public String showReport(
                         @RequestParam(name = "monthText", required = false) String monthText,
                         Model model) {

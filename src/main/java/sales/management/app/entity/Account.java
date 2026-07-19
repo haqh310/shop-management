@@ -50,8 +50,11 @@ public class Account {
     private String platform2FA;
     private String note1;
     private String note2;
+    @Builder.Default
     @OneToMany(mappedBy = "account")
     private List<Order> orderList = new ArrayList<>();
+
+    @Builder.Default
     @OneToMany(mappedBy = "account")
     private List<Proxy> proxyList = new ArrayList<>();
 }

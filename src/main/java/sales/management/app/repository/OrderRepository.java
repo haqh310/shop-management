@@ -13,11 +13,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import sales.management.app.dto.EmployeeDataset;
+import sales.management.app.dto.OrderFormDTO;
 import sales.management.app.dto.OrderListDTO;
 import sales.management.app.dto.ChartDTO;
 import sales.management.app.entity.Order;
+import sales.management.app.enums.StatusOrder;
 
 public interface OrderRepository extends JpaRepository<Order, String> {
+
+        @Query(value = """
+                        SELECT new sales.management.app.dto.OrderFormDTO(
+                                   o.orderNumber, o.orderDate, o.expiryDate, a.accountName, o.productLink, o.productName, o.quantity, o.balance, o.color, o.productImage, o.orderAddress, o.noteSeller
+                        )
+                        FROM Order o
+                        LEFT JOIN o.account a
+                        WHERE o.orderNumber = :orderNumber
+                        """)
+        Optional<OrderFormDTO> findByOrderNumberForForm(@Param("orderNumber") String orderNumber);
 
         Optional<Order> findByOrderNumber(String orderNumber);
 
@@ -41,6 +53,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
                                         o.orderAddress AS orderAddress,
                                         o.noteSeller AS noteSeller,
                                         o.status AS status,
+                                        ow.id As warehouseId,
                                         ow.tracking AS tracking,
                                         ow.orderNumberWarehouse AS orderNumberWarehouse,
                                         ow.zip AS zip,
@@ -52,18 +65,18 @@ public interface OrderRepository extends JpaRepository<Order, String> {
                                         ow.noteWarehouse2 AS noteWarehouse2,
                                         ow.linkEvidence AS linkEvidence,
                                         ow.noteWarehouse AS noteWarehouse
-                                FROM Order o
+                                FROM  OrderWarehouse ow
+                                LEFT JOIN ow.order o
                                 LEFT JOIN o.account a
                                 LEFT JOIN a.employee ae
-                                LEFT JOIN o.orderWarehouse ow
                                 LEFT JOIN ow.employee owe
                                 WHERE (o.orderNumber LIKE CONCAT('%', :keyword, '%') OR o.productName LIKE CONCAT('%', :keyword, '%'))
                                 AND (:status IS NULL OR o.status = :status)
                                 AND o.orderDate >= :startDate
                                 AND o.orderDate <= :endDate
-                                ORDER BY o.orderDate DESC
+                                ORDER BY o.createdAt DESC, o.orderDate DESC
                         """, nativeQuery = false)
-        Page<OrderListDTO> findOrderForAdmin(@Param("keyword") String keyword, @Param("status") String status,
+        Page<OrderListDTO> findOrderForAdmin(@Param("keyword") String keyword, @Param("status") StatusOrder status,
                         @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate,
                         Pageable pageable);
 
@@ -87,6 +100,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
                                         o.orderAddress AS orderAddress,
                                         o.noteSeller AS noteSeller,
                                         o.status AS status,
+                                        ow.id As warehouseId,
                                         ow.tracking AS tracking,
                                         ow.orderNumberWarehouse AS orderNumberWarehouse,
                                         ow.zip AS zip,
@@ -98,19 +112,19 @@ public interface OrderRepository extends JpaRepository<Order, String> {
                                         ow.noteWarehouse2 AS noteWarehouse2,
                                         ow.linkEvidence AS linkEvidence,
                                         ow.noteWarehouse AS noteWarehouse
-                                FROM Order o
+                                FROM  OrderWarehouse ow
+                                LEFT JOIN ow.order o
                                 LEFT JOIN o.account a
                                 LEFT JOIN a.employee ae
-                                LEFT JOIN o.orderWarehouse ow
                                 LEFT JOIN ow.employee owe
                                 WHERE (o.orderNumber LIKE CONCAT('%', :keyword, '%') OR o.productName LIKE CONCAT('%', :keyword, '%'))
                                 AND (:status IS NULL OR o.status = :status)
                                 AND o.orderDate >= :startDate
                                 AND o.orderDate <= :endDate
                                 AND ae.id = :id
-                                ORDER BY o.orderDate DESC
+                                ORDER BY o.createdAt DESC, o.orderDate DESC
                         """, nativeQuery = false)
-        Page<OrderListDTO> findOrderForSeller(@Param("keyword") String keyword, @Param("status") String status,
+        Page<OrderListDTO> findOrderForSeller(@Param("keyword") String keyword, @Param("status") StatusOrder status,
                         @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate,
                         @Param("id") Integer id,
                         Pageable pageable);
@@ -135,6 +149,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
                                         o.orderAddress AS orderAddress ,
                                         o.noteSeller AS noteSeller,
                                         o.status AS status,
+                                        ow.id As warehouseId,
                                         ow.tracking AS tracking,
                                         ow.orderNumberWarehouse AS orderNumberWarehouse,
                                         ow.zip AS zip,
@@ -146,19 +161,19 @@ public interface OrderRepository extends JpaRepository<Order, String> {
                                         ow.noteWarehouse2 AS noteWarehouse2,
                                         ow.linkEvidence AS linkEvidence,
                                         ow.noteWarehouse AS noteWarehouse
-                                FROM Order o
+                                FROM  OrderWarehouse ow
+                                LEFT JOIN ow.order o
                                 LEFT JOIN o.account a
                                 LEFT JOIN a.employee ae
-                                LEFT JOIN o.orderWarehouse ow
                                 LEFT JOIN ow.employee owe
                                 WHERE (o.orderNumber LIKE CONCAT('%', :keyword, '%') OR o.productName LIKE CONCAT('%', :keyword, '%'))
                                 AND (:status IS NULL OR o.status = :status)
                                 AND o.orderDate >= :startDate
                                 AND o.orderDate <= :endDate
                                 AND owe.id = :id
-                                ORDER BY o.orderDate DESC
+                                ORDER BY o.createdAt DESC, o.orderDate DESC
                         """, nativeQuery = false)
-        Page<OrderListDTO> findOrderForWarehouse(@Param("keyword") String keyword, @Param("status") String status,
+        Page<OrderListDTO> findOrderForWarehouse(@Param("keyword") String keyword, @Param("status") StatusOrder status,
                         @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate,
                         @Param("id") Integer id,
                         Pageable pageable);
@@ -167,7 +182,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
          * Thống kế tổng doanh thu và đơn hàng theo từng ngày
          */
         @Query(value = """
-                        SELECT order_date AS orderDay, COALESCE(SUM(balance), 0) AS balance, COALESCE(COUNT(order_number),0) AS orderCount
+                        SELECT order_date AS orderDay, COALESCE(SUM(balance*quantity), 0) AS balance, COALESCE(COUNT(order_number),0) AS orderCount
                         FROM orders
                         WHERE order_date >= :startDate AND order_date <= :endDate
                         AND status NOT IN ('CANCEL', 'REFUND')
@@ -181,7 +196,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
          * Thống kế tổng doanh thu và đơn hàng trong khoảng thời gian chỉ định
          */
         @Query(value = """
-                        SELECT COALESCE(COUNT(order_number), 0) AS orderCount, COALESCE(SUM(balance),0) AS balance
+                        SELECT COALESCE(COUNT(order_number), 0) AS orderCount, COALESCE(SUM(balance*quantity),0) AS balance
                         FROM orders
                         WHERE order_date >= :startDate AND order_date <= :endDate
                         AND status NOT IN ('CANCEL', 'REFUND')
@@ -193,7 +208,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
          * Thống kế tổng doanh thu và đơn hàng của nhân viên bán hàng theo từng ngày
          */
         @Query(value = """
-                        SELECT e.name AS employeeName, o.order_date AS orderDate, COALESCE(SUM(o.balance), 0) AS balance, COALESCE(COUNT(o.order_number), 0) As orderCount
+                        SELECT e.name AS employeeName, o.order_date AS orderDate, COALESCE(SUM(o.balance*o.quantity), 0) AS balance, COALESCE(COUNT(o.order_number), 0) As orderCount
                         FROM orders o
                         JOIN accounts a ON a.account_name = o.account_name
                         JOIN employees e ON e.id = a.employee_id
@@ -211,7 +226,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
          * định
          */
         @Query(value = """
-                        SELECT e.name AS employeeName, COALESCE(SUM(o.balance),0) AS balance, COALESCE(COUNT(o.order_number),0) As orderCount
+                        SELECT e.name AS employeeName, COALESCE(SUM(o.balance*o.quantity),0) AS balance, COALESCE(COUNT(o.order_number),0) As orderCount
                         FROM orders o
                         JOIN accounts a ON a.account_name = o.account_name
                         JOIN employees e ON e.id = a.employee_id
@@ -240,7 +255,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
          * Thống kế doanh thu và đơn hàng của nền tảng trong khoảng thời gian chỉ định
          */
         @Query(value = """
-                        SELECT a.platform As platform,  COALESCE(SUM(o.balance), 0) As balance
+                        SELECT a.platform As platform,  COALESCE(SUM(o.balance*o.quantity), 0) As balance
                         FROM orders o
                         JOIN accounts a ON a.account_name = o.account_name
                         WHERE o.order_date >= :startDate
@@ -255,7 +270,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
          * chỉ định
          */
         @Query(value = """
-                        SELECT a.account_name As accountName, e.name As employeeName,  COALESCE(SUM(o.balance), 0) As balance
+                        SELECT a.account_name As accountName, e.name As employeeName,  COALESCE(SUM(o.balance*o.quantity), 0) As balance
                         FROM orders o
                         JOIN accounts a ON a.account_name = o.account_name
                         JOIN employees e ON e.id = a.employee_id
@@ -271,7 +286,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
          * định
          */
         @Query(value = """
-                        SELECT e.name As employeeName, COALESCE(SUM(o.balance),0) AS balance, COALESCE(COUNT(o.order_number),0) As orderCount
+                        SELECT e.name As employeeName, COALESCE(SUM(o.balance*o.quantity),0) AS balance, COALESCE(COUNT(o.order_number),0) As orderCount
                         FROM orders o
                         JOIN accounts a ON a.account_name = o.account_name
                         JOIN employees e ON e.id = a.employee_id
@@ -291,14 +306,15 @@ public interface OrderRepository extends JpaRepository<Order, String> {
          * định
          */
         @Query(value = """
-                        SELECT e.name As employeeName, COALESCE(SUM(o.balance),0) AS balance
+                        SELECT e.name As employeeName, COALESCE(SUM(o.balance*o.quantity),0) AS balance
                         FROM employees e
-                        LEFT JOIN orders o ON e.id = o.employee_id
+                        JOIN order_warehouses ow ON ow.employee_id = e.id
+                        JOIN orders o ON o.order_number = ow.order_number
                         AND o.order_date >= :startDate
                         AND o.order_date <= :endDate
                         AND o.status IN ('CO_TRACK', 'DA_NHAP_TRACK')
                         WHERE e.role = :role
-                        GROUP BY  e.id
+                        GROUP BY o.order_number, e.id
                         """, nativeQuery = true)
         List<Map<String, Object>> getBalanceOfWarehouse(@Param("startDate") LocalDate startDate,
                         @Param("endDate") LocalDate endDate, @Param("role") String role);
@@ -311,11 +327,12 @@ public interface OrderRepository extends JpaRepository<Order, String> {
         @Query(value = """
                         SELECT COALESCE(Count(o.order_number),0)
                         FROM orders o
-                        JOIN employees e ON e.id = o.employee_id
+                        JOIN order_warehouses ow ON ow.order_number = o.order_number
+                        JOIN employees e ON e.id = ow.employee_id
                         WHERE o.order_date >= :startDate
                         AND o.order_date <= :endDate
                         AND o.status in (:statuses)
-                        GROUP BY  o.employee_id
+                        GROUP BY  o.order_number, ow.employee_id
                         ORDER BY e.name
                         """, nativeQuery = true)
         List<Integer> getOrderWarehouseByStatus(@Param("startDate") LocalDate startDate,

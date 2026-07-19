@@ -35,6 +35,8 @@ public interface OrderListDTO {
     StatusOrder getStatus();
 
     // === Nhóm thông tin từ OrderWarehouse ===
+    Long getWarehouseId();
+
     String getTracking();
 
     String getOrderNumberWarehouse();

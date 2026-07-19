@@ -1,6 +1,6 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:fragment="modal(id, title, imageUpload, imagePreviewContainer, imagePreview)">
+<th:block th:fragment="modal(id, title, imageUpload, imagePreviewContainer, imagePreview, action)">
     <div th:id="${id}"
         class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
         <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full flex flex-col max-h-[90vh]">
@@ -13,7 +13,6 @@
                 <button type="button"
                     class="btn-close-modal text-white hover:text-red-500 text-2xl leading-none">✕</button>
             </div>
-
             <!-- Loại bỏ onsubmit định sẵn ở đây -->
             <form class="flex flex-col flex-1 overflow-hidden">
                 <!-- Modal Body -->
@@ -21,16 +20,19 @@
                     <!-- Row 1 -->
                     <div class="grid grid-cols-10 gap-3">
                         <div class="col-span-10 sm:col-span-5">
-                            <label class="block text-sm font-semibold text-gray-900 mb-1">Order ID <span
+                            <label class="block text-sm font-semibold text-gray-900 mb-1">Order Number <span
                                     class="text-red-500">*</span></label>
-                            <input name="orderNumber" type="text" placeholder="ORD001237" required
+                            <input name="orderNumber" type="text" placeholder="ORD001237" required th:readonly="${action eq 'edit'}"
                                 class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
                         </div>
                         <div class="col-span-10 sm:col-span-5">
                             <label class="block text-sm font-semibold text-gray-900 mb-1">Account <span
                                     class="text-red-500">*</span></label>
-                            <input name="account" type="text" placeholder="email@mail.com" required
-                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                            <select
+                                name="account" required
+                                class="w-full px-3 py-1.5border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                            </select>
                         </div>
                     </div>
 
@@ -67,7 +69,7 @@
                         <div class="col-span-5 sm:col-span-3">
                             <label class="block text-sm font-semibold text-gray-900 mb-1">Balance <span
                                     class="text-red-500">*</span></label>
-                            <input name="balance" type="number" placeholder="0.0" min="1" required
+                            <input name="balance" type="number" placeholder="0.0" min="1" step="0.01" required
                                 class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
                         </div>
                     </div>
@@ -136,8 +138,7 @@
                     <button type="button"
                         class="btn-close-modal px-5 py-1.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors text-sm">Hủy</button>
                     <button type="submit"
-                        class="px-5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors text-sm">Tạo
-                        Đơn Hàng</button>
+                        class="px-5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors text-sm">Lưu </button>
                 </div>
             </form>
         </div>

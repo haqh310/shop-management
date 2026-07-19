@@ -22,7 +22,7 @@ public class OverviewController {
         this.performanceService = performanceService;
     }
 
-    @GetMapping("")
+    @GetMapping({"", "/"})
     public String getOverview(Model model) {
 
         Map<String, Object> statusData = overviewService.getAccountCountByPlatform();

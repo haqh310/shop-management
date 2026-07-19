@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import sales.management.app.entity.Account;
 import sales.management.app.enums.StatusAccount;
@@ -60,4 +61,13 @@ public interface AccountRepository extends JpaRepository<Account, String> {
                 ORDER BY e.name DESC
             """, nativeQuery = true)
     List<Map<String, Object>> getAccountBySellerPlatform();
+
+    @Query(value = """
+                SELECT a.accountName
+                FROM Account a
+                LEFT JOIN a.employee e
+                WHERE e.id = :employeeId
+            """, nativeQuery = false)
+    List<String> getAccountNameByEmployee(@Param("employeeId") Integer employeeId);
+
 }

@@ -12,6 +12,8 @@ import sales.management.app.entity.Employee;
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByEmail(String email);
 
+    Optional<Employee> findById(Integer id);
+
     @Query(value = "SELECT * FROM employees  WHERE role = :role AND status = 'DANG_LAM_VIEC'", nativeQuery = true)
     List<Employee> findByRole(@Param("role") String role);
 
@@ -22,5 +24,12 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
                    ORDER BY name DESC
             """, nativeQuery = true)
     List<String> getEmployeeNameWarehouse();
+
+    @Query(value = """
+            SELECT id
+             FROM employees
+            WHERE role='KHO' AND status = 'DANG_LAM_VIEC'
+            """, nativeQuery = true)
+    List<Integer> getEmployeeWarehouseId();
 
 }

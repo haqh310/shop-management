@@ -6,24 +6,16 @@ import org.springframework.security.core.Authentication;
 
 import sales.management.app.dto.OrderWarehouseDTO;
 import sales.management.app.entity.CustomUserDetails;
-import sales.management.app.entity.Order;
 import sales.management.app.entity.OrderWarehouse;
-import sales.management.app.repository.AccountRepository;
-import sales.management.app.repository.OrderRepository;
 import sales.management.app.repository.WarehouseRepository;
 
 @Service
 public class WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
-    private final OrderRepository orderRepository;
-    private final AccountRepository accountRepository;
 
-    WarehouseService(WarehouseRepository warehouseRepository, OrderRepository orderRepository,
-            AccountRepository accountRepository) {
+    WarehouseService(WarehouseRepository warehouseRepository) {
         this.warehouseRepository = warehouseRepository;
-        this.orderRepository = orderRepository;
-        this.accountRepository = accountRepository;
     }
 
     public CustomUserDetails getCurrentUserDetails() {
@@ -34,23 +26,15 @@ public class WarehouseService {
         return null;
     }
 
-    public OrderWarehouseDTO findByOrderNumber(String orderNumber) {
-        return warehouseRepository.findByOrderNumber(orderNumber).orElse(null);
+    public OrderWarehouseDTO findById(Long id) {
+        return warehouseRepository.findByIdForForm(id).orElse(null);
     }
 
-    public void saveOrderWarehouse(OrderWarehouseDTO createOrderWarehouseDTO) throws Exception {
-        Order order = orderRepository.findByOrderNumber(createOrderWarehouseDTO.getOrderNumber())
-                .orElseThrow(() -> new Exception("Not found order by order number!"));
+    public void saveOrderWarehouse(Long id, OrderWarehouseDTO createOrderWarehouseDTO) throws Exception {
+        OrderWarehouse orderWarehouse = warehouseRepository.findById(id).orElse(null);
 
-        // 2. Lấy đối tượng OrderWarehouse đang liên kết từ Order gốc ra
-        OrderWarehouse orderWarehouse = order.getOrderWarehouse();
-
-        // 3. Nếu ĐƠN HÀNG MỚI hoàn toàn (chưa từng có thông tin kho dưới DB) -> Lúc này
-        // mới khởi tạo
         if (orderWarehouse == null) {
-            orderWarehouse = new OrderWarehouse();
-            orderWarehouse.setOrder(order); // Thiết lập mối quan hệ
-            order.setOrderWarehouse(orderWarehouse); // Đồng bộ 2 chiều
+            throw new Exception("Order Warehouse not found");
         }
 
         orderWarehouse.setTracking(createOrderWarehouseDTO.getTracking());
@@ -59,15 +43,15 @@ public class WarehouseService {
         orderWarehouse.setEmail(createOrderWarehouseDTO.getEmail());
         orderWarehouse.setPassword(createOrderWarehouseDTO.getPassword());
         orderWarehouse.setPhoneNumber(createOrderWarehouseDTO.getPhoneNumber());
-
         orderWarehouse.setNoteWarehouse1(createOrderWarehouseDTO.getNoteWarehouse1());
         orderWarehouse.setNoteWarehouse2(createOrderWarehouseDTO.getNoteWarehouse2());
         orderWarehouse.setLinkEvidence(createOrderWarehouseDTO.getLinkEvidence());
         orderWarehouse.setNoteWarehouse(createOrderWarehouseDTO.getNoteWarehouse());
+
         // get user create order warehouse
         CustomUserDetails user = getCurrentUserDetails();
         orderWarehouse.setEmployee(user.getEmployee());
 
-        orderRepository.save(order);
+        warehouseRepository.save(orderWarehouse);
     }
 }

@@ -11,34 +11,6 @@
 // =========================================================================
 
 /**
- * Hàm kiểm tra file hình ảnh và hiển thị ảnh xem trước (Preview)
- */
-function handleImagePreview(file, previewImgEl, previewContainerEl) {
-  if (!file) return;
-
-  // Kiểm tra dung lượng (Max 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    alert("File quá lớn! Vui lòng chọn file nhỏ hơn 5MB");
-    return;
-  }
-
-  // Kiểm tra định dạng file
-  if (!file.type.startsWith("image/")) {
-    alert("Vui lòng chọn file hình ảnh hợp lệ (jpg, png, gif)!");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    if (previewImgEl && previewContainerEl) {
-      previewImgEl.src = e.target.result;
-      previewContainerEl.classList.remove("hidden");
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-/**
  * Hàm thiết lập các sự kiện đóng modal cơ bản (Click nền đen, Click nút hủy)
  */
 function setupCommonModalEvents(modalEl, closeModalFn) {
@@ -59,79 +31,20 @@ function setupCommonModalEvents(modalEl, closeModalFn) {
     });
   });
 }
-
-/**
- * Hàm thiết lập tính năng Kéo & Thả (Drag & Drop) và Click để chọn ảnh
- */
-function setupImageUploadArea(
-  modalEl,
-  uploadInputEl,
-  previewImgEl,
-  previewContainerEl,
-) {
-  if (!uploadInputEl || !modalEl) return;
-
-  const uploadArea = modalEl.querySelector(".upload-zone");
-  if (!uploadArea) return;
-
-  // Sự kiện khi click vào vùng dashed border -> Kích hoạt thẻ input file ẩn
-  uploadArea.addEventListener("click", () => uploadInputEl.click());
-
-  // Sự kiện khi kéo file đè lên vùng upload
-  uploadArea.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    uploadArea.classList.add("border-purple-500", "bg-purple-50");
-  });
-
-  // Sự kiện khi kéo file ra khỏi vùng upload
-  uploadArea.addEventListener("dragleave", () => {
-    uploadArea.classList.remove("border-purple-500", "bg-purple-50");
-  });
-
-  // Sự kiện khi thả file vào vùng upload
-  uploadArea.addEventListener("drop", (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove("border-purple-500", "bg-purple-50");
-
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      uploadInputEl.files = files; // Gán danh sách file vào thẻ input để khi submit form tự gửi đi
-      handleImagePreview(files[0], previewImgEl, previewContainerEl);
-    }
-  });
-
-  // Lắng nghe sự kiện click nút Xóa ảnh cũ/ảnh preview
-  const btnRemoveImg = modalEl.querySelector(".btn-remove-img");
-  if (btnRemoveImg) {
-    btnRemoveImg.addEventListener("click", (e) => {
-      e.preventDefault();
-      uploadInputEl.value = "";
-      if (previewContainerEl) previewContainerEl.classList.add("hidden");
-      if (previewImgEl) previewImgEl.src = "";
-    });
-  }
-}
-
 // =========================================================================
 // II. HÀM KHỞI TẠO MODAL TẠO MỚI (CREATE CONTROLLER)
 // =========================================================================
 
 function initModalUpdateWarehouseController({
   modalId,
-  openBtnId,
+  resetBtnId,
   editBtnClass,
-  uploadInputId,
-  previewContainerId,
-  previewImgId,
   fetchUrlPattern,
   submitUrlPattern,
 }) {
   const modalEl = document.getElementById(modalId);
-  const openBtnEl = document.getElementById(openBtnId);
+  const resetBtnEl = document.getElementById(resetBtnId);
   const formEl = modalEl?.querySelector("form");
-  const uploadInputEl = document.getElementById(uploadInputId);
-  const previewContainerEl = document.getElementById(previewContainerId);
-  const previewImgEl = document.getElementById(previewImgId);
 
   // Hàm xử lý đóng đóng modal tạo mới
   const closeModal = () => {
@@ -139,35 +52,54 @@ function initModalUpdateWarehouseController({
       modalEl.classList.add("hidden");
       document.body.style.overflow = "auto";
       formEl?.reset(); // Làm sạch form dữ liệu
-      if (previewContainerEl) previewContainerEl.classList.add("hidden");
-      if (previewImgEl) previewImgEl.src = "";
     }
   };
 
-  // Mở modal khi bấm nút thêm mới ngoài màn hình chính
-  if (openBtnEl) {
-    openBtnEl.addEventListener("click", (e) => {
+  // Reset data modal khi bấm nút reset
+  if (resetBtnEl) {
+    resetBtnEl.addEventListener("click", (e) => {
       e.preventDefault();
-      modalEl?.classList.remove("hidden");
-      document.body.style.overflow = "hidden";
+
+      const trackingInput = formEl.querySelector('[name="tracking"]');
+      const orderNumberInput = formEl.querySelector(
+        '[name="orderNumberWarehouse"]',
+      );
+      const zipInput = formEl.querySelector('[name="zip"]');
+      const emailnput = formEl.querySelector('[name="email"]');
+      const phoneNumberInput = formEl.querySelector('[name="phoneNumber"]');
+      const password = formEl.querySelector('[name="password"]');
+      const linkEvidence = formEl.querySelector('[name="linkEvidence"]');
+
+      // Lay du lieu cu
+      let text = "";
+      if (trackingInput != "")
+        text += "Tracking: " + trackingInput.value.trim() + "\n";
+      if (orderNumberInput != "")
+        text += "Order Number: " + orderNumberInput.value.trim() + "\n";
+      if (zipInput != "") text += "Zip: " + zipInput.value.trim() + "\n";
+      if (emailnput != "") text += "Email: " + emailnput.value.trim() + "\n";
+      if (phoneNumberInput != "")
+        text += "Phone Number: " + phoneNumberInput.value.trim() + "\n";
+      if (password != "") text += "Password: " + password.value.trim() + "\n";
+      if (linkEvidence != "")
+        text += "Evidence: " + linkEvidence.value.trim() + "\n";
+      text += "***" + "\n\n";
+
+      // truyen vao field noteWarehouse
+      const noteWarehouseInput = formEl.querySelector('[name="noteWarehouse"]');
+      noteWarehouseInput.value = text;
+      trackingInput.value = "";
+      orderNumberInput.value = "";
+      zipInput.value = "";
+      emailnput.value = "";
+      phoneNumberInput.value = "";
+      password.value = "";
+      linkEvidence.value = "";
     });
   }
 
   // Khởi tạo các sự kiện đóng/hủy chung
   setupCommonModalEvents(modalEl, closeModal);
-
-  // Khởi tạo sự kiện xử lý ảnh cho modal Create
-  if (uploadInputEl) {
-    uploadInputEl.addEventListener("change", (e) => {
-      handleImagePreview(e.target.files[0], previewImgEl, previewContainerEl);
-    });
-    setupImageUploadArea(
-      modalEl,
-      uploadInputEl,
-      previewImgEl,
-      previewContainerEl,
-    );
-  }
 
   // Lắng nghe hành động khi người dùng nhấn nút Sửa trên bảng danh sách
   document.querySelectorAll(`.${editBtnClass}`).forEach((btn) => {
@@ -197,7 +129,6 @@ function initModalUpdateWarehouseController({
             });
           }
 
-          formEl.querySelector('[name="orderNumber"]').value = currentOrderId;
           // Hiện thị modal lên màn hình sau khi đổ dữ liệu thành công
           modalEl?.classList.remove("hidden");
           document.body.style.overflow = "hidden";
@@ -216,13 +147,13 @@ function initModalUpdateWarehouseController({
       const formData = new FormData(formEl);
 
       try {
-        const response = await fetch(submitUrlPattern, {
+        const fetchUrl = submitUrlPattern.replace("{id}", currentOrderId);
+        const response = await fetch(fetchUrl, {
           method: "POST",
           body: formData,
         });
 
         if (response.ok) {
-          alert("Tạo đơn hàng mới thành công!");
           closeModal();
           window.location.reload(); // Reload lại trang để cập nhật bảng
         } else {

@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderWarehouseDTO {
+    private Long id;
     private String orderNumber;
     private String tracking, orderNumberWarehouse, zip, email, password, phoneNumber;
     private String noteWarehouse1, noteWarehouse2, linkEvidence, noteWarehouse;
