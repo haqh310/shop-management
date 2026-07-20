@@ -144,8 +144,9 @@ public class OrderService {
         return path.toString();
     }
 
-    public Order save(OrderFormDTO createOrderDTO) {
-        Account account = accountRepository.findByAccountName(createOrderDTO.getAccount());
+    public Order save(OrderFormDTO createOrderDTO) throws Exception {
+        Account account = accountRepository.findByAccountName(createOrderDTO.getAccount())
+                .orElseThrow(() -> new Exception("Account not found"));
 
         // Lưu đường dẫn ảnh vào thuộc tính imageUrl của Entity
         String savedImagePath = null;
@@ -268,12 +269,17 @@ public class OrderService {
 
         Iterable<CSVRecord> csvRecords = parser.getRecords();
 
+        String fileName = file.getOriginalFilename();
+        String accountName = fileName.split("_")[0];
+
+        Account account = accountRepository.findByAccountName(accountName)
+                .orElseThrow(() -> new Exception("account not found"));
+
         for (CSVRecord csvRecord : csvRecords) {
             // Đọc dữ liệu theo tên cột tương ứng trong file CSV của bạn
             String orderNumber = csvRecord.get("Order ID");
-            String account = csvRecord.get("Account");
             String productName = csvRecord.get("Product Name");
-            String quantityStr = csvRecord.get("Quantity");
+            String quantity = csvRecord.get("Quantity");
 
             // Thực hiện convert dữ liệu và gọi Service để lưu vào database
             // Example:

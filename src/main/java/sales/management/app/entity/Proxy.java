@@ -13,15 +13,13 @@ import java.util.*;
 @Builder
 public class Proxy {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
     private String proxy;
-    private Integer status;
+    private boolean isActive;
     @Temporal(TemporalType.DATE)
     private Date expiryDate;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_name")
-    private Account account;
     private String supplier;
+    @Builder.Default
+    @OneToMany(mappedBy = "proxy")
+    private List<Account> accountList = new ArrayList<>();
 
 }

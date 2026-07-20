@@ -35,7 +35,9 @@ public class Account {
     private Date payoutDate;
     @Column(columnDefinition = "TEXT")
     private String dieReason;
-    private String proxy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "proxy", nullable = true)
+    private Proxy proxy;
     private String inf;
     private String ssn;
     private String phoneReg;
@@ -53,8 +55,4 @@ public class Account {
     @Builder.Default
     @OneToMany(mappedBy = "account")
     private List<Order> orderList = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "account")
-    private List<Proxy> proxyList = new ArrayList<>();
 }
